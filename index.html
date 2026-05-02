@@ -1,1 +1,1025 @@
-优秀的出海方法
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>出海第一课 — 中国企业全球化方法论</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #B87333;
+    --gold-light: #F5E6CC;
+    --gold-mid: #D4A855;
+    --ink: #1A1A1A;
+    --ink-2: #3D3D3D;
+    --ink-3: #666666;
+    --bg: #FAFAF7;
+    --bg-card: #FFFFFF;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.15);
+    --red: #C0392B;
+    --red-light: #FDF0EF;
+    --blue: #1A5276;
+    --blue-light: #EAF2FB;
+    --green: #1E8449;
+    --green-light: #EAFAF1;
+    --orange: #CA6F1E;
+    --orange-light: #FEF9E7;
+    --cf-orange: #F48120;
+    --cf-light: #FEF3E8;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.8;
+    font-size: 16px;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--ink);
+    color: #FFFFFF;
+    padding: 80px 24px 70px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 60px,
+      rgba(184,115,51,0.04) 60px,
+      rgba(184,115,51,0.04) 61px
+    );
+  }
+  .hero-badge {
+    display: inline-block;
+    border: 1px solid var(--gold-mid);
+    color: var(--gold-mid);
+    font-size: 12px;
+    letter-spacing: 3px;
+    padding: 4px 16px;
+    border-radius: 2px;
+    margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.15;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .hero h1 span { color: var(--gold-mid); }
+  .hero-sub {
+    font-size: 17px;
+    color: rgba(255,255,255,0.65);
+    max-width: 580px;
+    margin: 0 auto 40px;
+    line-height: 1.7;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    flex-wrap: wrap;
+    position: relative;
+  }
+  .hero-stat-item { text-align: center; }
+  .hero-stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold-mid);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .hero-stat-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 1px;
+  }
+
+  /* ── Layout ── */
+  .container { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Nav ── */
+  .toc {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .toc-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .toc-inner::-webkit-scrollbar { display: none; }
+  .toc-inner a {
+    white-space: nowrap;
+    font-size: 13px;
+    color: var(--ink-3);
+    padding: 12px 12px;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+  }
+  .toc-inner a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* ── Section ── */
+  .section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+  .section:last-of-type { border-bottom: none; }
+
+  .section-label { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .section-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--ink); color: #fff;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .section-num.cf { background: var(--cf-orange); }
+  .section-tag { font-size: 12px; letter-spacing: 2px; color: var(--ink-3); text-transform: uppercase; }
+  .section-title {
+    font-size: clamp(22px, 3.5vw, 30px);
+    font-weight: 700; line-height: 1.3;
+    margin-bottom: 20px; color: var(--ink);
+  }
+  .section-intro { font-size: 16px; color: var(--ink-2); line-height: 1.9; margin-bottom: 32px; max-width: 700px; }
+
+  .divider { width: 40px; height: 3px; background: var(--gold); border-radius: 2px; margin: 16px 0 24px; }
+  .divider-cf { background: var(--cf-orange); }
+
+  /* ── Callout ── */
+  .callout {
+    border-left: 3px solid var(--gold);
+    background: var(--gold-light);
+    padding: 16px 20px; border-radius: 0 8px 8px 0;
+    font-size: 15px; color: var(--ink-2); line-height: 1.8; margin-bottom: 28px;
+  }
+  .callout strong { color: var(--ink); }
+  .callout-danger  { border-left-color: var(--red);    background: var(--red-light); }
+  .callout-info    { border-left-color: var(--blue);   background: var(--blue-light); }
+  .callout-success { border-left-color: var(--green);  background: var(--green-light); }
+  .callout-warning { border-left-color: var(--orange); background: var(--orange-light); }
+  .callout-cf      { border-left-color: var(--cf-orange); background: var(--cf-light); }
+
+  /* ── Cards ── */
+  .card-grid { display: grid; gap: 16px; margin-bottom: 32px; }
+  .card-grid-2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .card-grid-3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; }
+  .card-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-bottom: 12px; }
+  .card-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .card-body { font-size: 14px; color: var(--ink-2); line-height: 1.75; }
+
+  /* ── Steps ── */
+  .steps { list-style: none; counter-reset: step; margin-bottom: 24px; }
+  .steps li { counter-increment: step; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+  .steps li::before {
+    content: counter(step);
+    width: 26px; height: 26px;
+    background: var(--gold-light); color: var(--gold);
+    border-radius: 50%; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .steps.cf-steps li::before { background: var(--cf-light); color: var(--cf-orange); }
+  .steps li span { font-size: 14px; color: var(--ink-2); line-height: 1.75; }
+  .steps li strong { color: var(--ink); }
+
+  /* ── Checklist ── */
+  .checklist { list-style: none; margin-bottom: 24px; }
+  .checklist li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+    font-size: 14px; color: var(--ink-2); line-height: 1.7;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before { content: '✓'; color: var(--green); font-weight: 700; margin-top: 1px; flex-shrink: 0; }
+
+  /* ── Code block ── */
+  .code-block {
+    background: #1E1E1E; color: #D4D4D4;
+    border-radius: 8px; padding: 16px 20px;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 13px; line-height: 1.7;
+    overflow-x: auto; margin-bottom: 20px;
+  }
+  .code-block .comment { color: #6A9955; }
+  .code-block .highlight { color: #F48120; font-weight: 600; }
+  .code-block .arrow { color: #4EC9B0; }
+
+  /* ── Step cards for CF tutorial ── */
+  .cf-step {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; margin-bottom: 16px;
+  }
+  .cf-step-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #1A1A1A 0%, #2C2C2C 100%);
+    color: #fff;
+  }
+  .cf-step-num {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--cf-orange); color: #fff;
+    font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .cf-step-title { font-size: 15px; font-weight: 600; }
+  .cf-step-sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+  .cf-step-body { padding: 20px; }
+
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: var(--ink); color: #fff; padding: 10px 14px; text-align: left; font-weight: 500; font-size: 13px; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--ink-2); vertical-align: top; line-height: 1.65; }
+  tr:hover td { background: var(--bg); }
+
+  /* ── Module cards ── */
+  .module-item { font-size: 13px; color: var(--ink-2); line-height: 1.7; display: flex; gap: 6px; margin-bottom: 6px; }
+  .module-item::before { content: '·'; color: var(--gold); flex-shrink: 0; }
+
+  /* ── Quote ── */
+  .quote-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .quote-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; }
+  .quote-card::before { content: '\201C'; position: absolute; top: 10px; left: 16px; font-size: 48px; color: var(--gold-light); font-family: Georgia, serif; line-height: 1; }
+  .quote-text { font-size: 14px; color: var(--ink-2); line-height: 1.75; margin-bottom: 12px; padding-top: 20px; }
+  .quote-author { font-size: 12px; color: var(--ink-3); }
+  .quote-author strong { color: var(--ink); }
+
+  /* ── Expert ── */
+  .expert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .expert-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; gap: 14px; align-items: flex-start; }
+  .expert-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: var(--gold-mid); font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .expert-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .expert-role { font-size: 12px; color: var(--gold); margin-bottom: 6px; }
+  .expert-bio { font-size: 13px; color: var(--ink-2); line-height: 1.65; }
+
+  /* ── Platform badges ── */
+  .platform-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 24px; }
+  .platform-badge {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    text-align: center; font-size: 13px; color: var(--ink-2); font-weight: 500;
+  }
+  .platform-badge span { display: block; font-size: 20px; margin-bottom: 4px; }
+
+  /* ── Conclusion ── */
+  .conclusion { background: var(--ink); color: #fff; padding: 60px 24px; text-align: center; }
+  .conclusion h2 { font-size: clamp(22px, 3.5vw, 32px); font-weight: 700; margin-bottom: 16px; color: var(--gold-mid); }
+  .conclusion p { font-size: 16px; color: rgba(255,255,255,0.7); max-width: 560px; margin: 0 auto 32px; line-height: 1.8; }
+  .conclusion-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; max-width: 760px; margin: 0 auto; text-align: left; }
+  .conclusion-list li { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px 18px; font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.8); }
+  .conclusion-list li strong { display: block; color: var(--gold-mid); font-size: 13px; letter-spacing: 1px; margin-bottom: 6px; }
+
+  footer { text-align: center; padding: 28px 24px; font-size: 13px; color: var(--ink-3); border-top: 1px solid var(--border); }
+
+  .highlight { color: var(--gold); font-weight: 600; }
+  .danger-text { color: var(--red); font-weight: 600; }
+  .success-text { color: var(--green); font-weight: 600; }
+  .cf-text { color: var(--cf-orange); font-weight: 600; }
+
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tag { font-size: 12px; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border-strong); color: var(--ink-3); }
+
+  /* ── Flow arrow ── */
+  .flow { display: flex; flex-direction: column; gap: 4px; margin-bottom: 24px; }
+  .flow-step { display: flex; align-items: center; gap: 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-size: 14px; color: var(--ink-2); }
+  .flow-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--cf-orange); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .flow-arrow { text-align: center; font-size: 16px; color: var(--cf-orange); line-height: 1; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 52px 20px 48px; }
+    .section { padding: 44px 0; }
+    .hero-stats { gap: 28px; }
+    .cf-step-body { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<header class="hero">
+  <div class="hero-badge">企业出海完全手册</div>
+  <h1>出海<span>第一课</span></h1>
+  <p class="hero-sub">从"能看到海外"到"能在海外活下去" — 网络工具搭建 + 全球化方法论完整指南</p>
+  <div class="hero-stats">
+    <div class="hero-stat-item">
+      <div class="hero-stat-num">10 分钟</div>
+      <div class="hero-stat-label">搭建海外网络节点</div>
+    </div>
+    <div class="hero-stat-item">
+      <div class="hero-stat-num">¥0</div>
+      <div class="hero-stat-label">Cloudflare 方案成本</div>
+    </div>
+    <div class="hero-stat-item">
+      <div class="hero-stat-num">87%</div>
+      <div class="hero-stat-label">首次出海企业占比</div>
+    </div>
+    <div class="hero-stat-item">
+      <div class="hero-stat-num">4 关</div>
+      <div class="hero-stat-label">必须迈过的生死关</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════ NAV ══════════════════════ -->
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#why-network">为什么先搞网络</a>
+    <a href="#cloudflare">Cloudflare 免费节点</a>
+    <a href="#platforms">海外平台矩阵</a>
+    <a href="#four-gates">四大生死关</a>
+    <a href="#gate-1">国别选择</a>
+    <a href="#gate-2">出海营销</a>
+    <a href="#gate-3">人才组织</a>
+    <a href="#gate-4">合规风控</a>
+    <a href="#experts">导师团</a>
+    <a href="#conclusion">核心法则</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════ MAIN ══════════════════════ -->
+<main>
+
+<!-- ─── 为什么先搞网络 ─── -->
+<section id="why-network" class="section">
+  <div class="container">
+    <div class="section-label">
+      <div class="section-num cf">0</div>
+      <span class="section-tag">出海前置条件</span>
+    </div>
+    <h2 class="section-title">出海第一步：先打通海外信息通道</h2>
+    <div class="divider divider-cf"></div>
+
+    <div class="callout callout-cf">
+      <strong>最基本的道理：</strong>做出海业务，需要访问 Google、Facebook、Instagram、YouTube、TikTok、LinkedIn、Amazon、Shopify 等海外平台。
+      <strong>看不到海外内容，就无法理解海外市场；发布不到海外平台，就无从建立海外流量。</strong>
+    </div>
+
+    <p class="section-intro">海外内容触达能力是出海的基础设施。在开始谈国别选择、本地化营销之前，你的团队必须能够<strong>自由、稳定、快速</strong>地访问和使用所有主流海外平台。</p>
+
+    <div class="card-grid card-grid-3">
+      <div class="card" style="border-top:3px solid var(--cf-orange);">
+        <div class="card-icon" style="background:var(--cf-orange);">📡</div>
+        <div class="card-title">访问海外内容</div>
+        <div class="card-body">调研竞品、看行业趋势、刷 YouTube 学海外营销打法</div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--blue);">
+        <div class="card-icon" style="background:var(--blue);">📢</div>
+        <div class="card-title">发布到海外平台</div>
+        <div class="card-body">在 Facebook / Instagram / TikTok / YouTube 发布内容，触达海外用户</div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--green);">
+        <div class="card-icon" style="background:var(--green);">🛒</div>
+        <div class="card-title">运营海外店铺</div>
+        <div class="card-body">管理 Amazon、Shopify、eBay 等跨境电商店铺，处理海外订单</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Cloudflare 免费节点 ─── -->
+<section id="cloudflare" class="section" style="background:var(--bg-card);">
+  <div class="container">
+    <div class="section-label">
+      <div class="section-num cf">1</div>
+      <span class="section-tag">网络基础设施</span>
+    </div>
+    <h2 class="section-title">免费搭建企业海外网络节点</h2>
+    <div class="divider divider-cf"></div>
+
+    <div class="callout callout-cf">
+      <strong>推荐方案：Cloudflare Workers/Pages + 免费域名</strong><br>
+      完全免费、无需购买服务器、约 10 分钟完成搭建，依托 Cloudflare 全球 CDN 网络，速度与稳定性远超普通方案。可解锁 ChatGPT、Google 全家桶、各大社媒平台。
+    </div>
+
+    <div class="card-grid card-grid-2" style="margin-bottom:36px;">
+      <div class="card">
+        <div class="card-title" style="color:var(--cf-orange);">方案优势</div>
+        <ul class="checklist" style="margin:0;">
+          <li>完全免费，无服务器成本</li>
+          <li>域名也可以免费获取</li>
+          <li>Cloudflare 全球网络，速度极快</li>
+          <li>约 10 分钟完成全部搭建</li>
+          <li>一次搭建，长期稳定使用</li>
+          <li>支持 Windows / Mac / iOS / Android</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--blue);">所需账号</div>
+        <ul class="checklist" style="margin:0;">
+          <li>Cloudflare 账号（免费注册）</li>
+          <li>免费域名（dnshe.com 或 digitalplat.org）</li>
+          <li>GitHub 账号（用于获取开源程序）</li>
+          <li>V2Ray 等客户端（免费开源）</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;color:var(--ink);">完整搭建教程（9 步）</h3>
+
+    <!-- Step 1 -->
+    <div class="cf-step">
+      <div class="cf-step-header">
+        <div class="cf-step-num">1</div>
+        <div>
+          <div class="cf-step-title">注册永久免费域名</div>
+          <div class="cf-step-sub">两种渠道任选其一</div>
+        </div>
+      </div>
+      <div class="cf-step-body">
+        <div class="table-wrap" style="margin-bottom:14px;">
+          <table>
+            <thead><tr><th>渠道</th><th>地址</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><strong>推荐</strong></td><td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;">dnshe.com</code></td><td>注册登录后，免费注册最多 5 个永久域名</td></tr>
+              <tr><td>备选</td><td><code style="background:#f0f0f0;padding:2px 6px;border-radius:4px;">digitalplat.org</code></td><td>同样提供免费永久域名</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout-warning" style="margin-bottom:0;">
+          根域名选择 <strong>ccwu.cc</strong> 或 <strong>us.ci</strong> 均完全免费。建议取一个有辨识度的子域名，例如：<code>yourcompany.ccwu.cc</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="cf-step">
+      <div class="cf-step-header">
+        <div class="cf-step-num">2</div>
+        <div>
+          <div class="cf-step-title">注册 Cloudflare 并托管域名</div>
+          <div class="cf-step-sub">cloudflare.com — 免费注册</div>
+        </div>
+      </div>
+      <div class="cf-step-body">
+        <ol class="steps cf-steps" style="margin-bottom:0;">
+          <li><span>前往 <strong>cloudflare.com</strong> 注册账号（免费）</span></li>
+          <li><span>登录后点击 <strong>「添加站点」</strong>，输入第一步注册的域名</span></li>
+          <li><span>选择 <strong>「免费计划」</strong>，按提示将域名的 NS 记录指向 Cloudflare 提供的两个名称服务器</span></li>
+          <li><span>等待 DNS 生效（通常 5~10 分钟），Cloudflare 控制台显示「活跃」即完成</span></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="cf-step">
+      <div class="cf-step-header">
+        <div class="cf-step-num">3</div>
+        <div>
+          <div class="cf-step-title">创建 KV 命名空间</div>
+          <div class="cf-step-sub">用于存储节点配置数据</div>
+        </div>
+      </div>
+      <div class="cf-step-body">
+        <div class="code-block">
+<span class="comment"># Cloudflare 后台操作路径：</span>
+存储和数据库 <span class="arrow">→</span> Worker KV <span class="arrow">→</span> 创建命名空间
+<span class="comment"># 随意命名，例如：</span><span class="highlight">MY_KV</span>
+<span class="comment"># 记住这个名称，后续绑定时要用到</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="cf-step">
+      <div class="cf-step-header">
+        <div class="cf-step-num">4</div>
+        <div>
+          <div class="cf-step-title">创建 Pages 并上传程序</div>
+          <div class="cf-step-sub">基于开源项目 edgetunnel</div>
+        </div>
+      </div>
+      <div class="cf-step-body">
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:14px;">使用开发者 <strong>CMliu</strong> 开源于 GitHub 的程序，无需修改代码，直接上传压缩包部署。</p>
+        <div class="callout callout-info" style="margin-bottom:16px;">
+          <strong>下载程序包：</strong><br>
+          主源：<code>github.com/cmliu/edgetunnel</code> → 点击 Code → Download ZIP<br>
+          备用：Mega 网盘（可在原文章获取直链）
+        </div>
+        <ol class="steps cf-steps" style="margin-bottom:0;">
+          <li><span>Cloudflare 后台 → <strong>Workers 和 Pages</strong> → 创建 → 选择 <strong>Pages</strong></span></li>
+          <li><span>选择 <strong>「直接上传」</strong>，将下载好的 <code>main.zip</code> 直接拖入上传</span></li>
+          <li><span>点击 <strong>「保存并部署」</strong>，等待部署完成（约 30 秒）</span></li>
+          <li><span>部署完成后点击 <strong>「继续处理站点」</strong></span></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="cf-step">
+      <div class="cf-step-header">
+        <div class="cf-step-num">5</div>
+        <div>
+          <div class="cf-step-title">配置环境变量（设置管理密码）</div>
+          <div class="cf-step-sub">设置后台登录密码</div>
+        </div>
+      </div>
+      <div class="cf-step-body">
+        <div class="code-block">
+Pages → 你的项目 → <span class="arrow">设置</span> → <span class="arrow">环境变量</span> → <span class="highlight">制作（生产环境）</span> → 添加变量
+
+变量名称：<span class="highlight">ADMIN</span>
+值：      <span class="highlight">你的管理密码（自定义）</span>
+
+点击「保存」
+        </div>
+        <div class="callout callout-warning" style="margin-bottom:0;">
+          保存后需要 <strong>重新部署</strong> 才能生效：返回「部署」选项卡 → 右下角点击「创建新部署」→ 重新上传 main.zip → 保存并部署
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="cf-step">
+      <div class="cf-step-header">
+        <div class="cf-step-num">6</div>
+        <div>
+          <div class="cf-step-title">绑定 KV 命名空间</div>
+          <div class="cf-step-sub">连接数据存储</div>
+        </div>
+      </div>
+      <div class="cf-step-body">
+        <div class="code-block">
+Pages → 设置 → <span class="highlight">绑定</span> → + 添加 → KV 命名空间
+
+变量名称：<span class="highlight">KV</span>  <span class="comment">（必须大写，固定写法）</span>
+KV 命名空间：选择第 3 步创建的命名空间
+
+点击「保存」→ 重试部署
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="cf-step">
+      <div class="cf-step-header">
+        <div class="cf-step-num">7</div>
+        <div>
+          <div class="cf-step-title">绑定自定义域名（CNAME）</div>
+          <div class="cf-step-sub">将你的免费域名接入节点</div>
+        </div>
+      </div>
+      <div class="cf-step-body">
+        <ol class="steps cf-steps">
+          <li><span>Pages → <strong>自定义域</strong> → 设置自定义域 → 填入你的子域名（如 <code>node.yourcompany.ccwu.cc</code>）</span></li>
+          <li><span>在域名 DNS 服务商处添加 <strong>CNAME 记录</strong>，将该子域名指向 <code>你的pages项目名.pages.dev</code></span></li>
+          <li><span>回到 Cloudflare → 点击 <strong>「激活域」</strong></span></li>
+          <li><span>等待几分钟，自定义域状态变为 <strong>「活跃」</strong> 即成功</span></li>
+        </ol>
+        <div class="callout callout-warning" style="margin-bottom:0;">
+          <strong>注意：</strong>填写的是<strong>次级域名</strong>（如 <code>node.xxx.ccwu.cc</code>），不要直接使用根域名。
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 8 -->
+    <div class="cf-step">
+      <div class="cf-step-header">
+        <div class="cf-step-num">8</div>
+        <div>
+          <div class="cf-step-title">登录管理后台，获取节点</div>
+          <div class="cf-step-sub">访问 /admin 路径</div>
+        </div>
+      </div>
+      <div class="cf-step-body">
+        <div class="code-block">
+访问地址：<span class="highlight">https://你的域名/admin</span>
+<span class="comment"># 示例：https://node.yourcompany.ccwu.cc/admin</span>
+
+输入第 5 步设置的管理密码 → 登录成功
+
+后台功能：
+  · 查看并复制节点链接 / 订阅地址
+  · 实时修改配置参数
+  · 查看流量统计与日志
+        </div>
+        <div class="callout callout-success" style="margin-bottom:0;">
+          后台支持生成 <strong>VLESS、Trojan</strong> 等协议的节点链接，以及 <strong>Clash、Sing-box、Surge</strong> 等格式的订阅地址，主流客户端均可直接导入。
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 9 -->
+    <div class="cf-step">
+      <div class="cf-step-header">
+        <div class="cf-step-num">9</div>
+        <div>
+          <div class="cf-step-title">配置客户端，开始使用</div>
+          <div class="cf-step-sub">Windows / Mac / iOS / Android 全平台支持</div>
+        </div>
+      </div>
+      <div class="cf-step-body">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>平台</th><th>推荐客户端</th><th>获取方式</th></tr></thead>
+            <tbody>
+              <tr><td>Windows</td><td><strong>v2rayN</strong></td><td>GitHub: 2dust/v2rayN（免费开源）</td></tr>
+              <tr><td>macOS</td><td><strong>V2rayU / Clash</strong></td><td>GitHub 搜索对应项目</td></tr>
+              <tr><td>Android</td><td><strong>v2rayNG</strong></td><td>GitHub: 2dust/v2rayNG</td></tr>
+              <tr><td>iOS</td><td><strong>Shadowrocket</strong></td><td>美区 App Store 购买</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout-success" style="margin-bottom:0;">
+          将后台生成的<strong>订阅地址</strong>导入客户端，一键更新节点。全团队共用一套订阅，管理极为方便。
+        </div>
+      </div>
+    </div>
+
+    <!-- 完整流程回顾 -->
+    <h3 style="font-size:16px;font-weight:700;margin:32px 0 16px;color:var(--ink);">完整流程一览</h3>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-step-num">1</div> 注册免费域名（dnshe.com）</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="flow-step-num">2</div> 注册 Cloudflare，将域名托管进去</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="flow-step-num">3</div> 创建 KV 命名空间</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="flow-step-num">4</div> 创建 Pages，上传 edgetunnel 压缩包</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="flow-step-num">5</div> 配置环境变量 ADMIN 密码 → 重新部署</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="flow-step-num">6</div> 绑定 KV 命名空间（变量名固定为 KV）</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="flow-step-num">7</div> 绑定自定义 CNAME 子域名 → 激活域</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="flow-step-num">8</div> 访问 /admin 登录后台，复制订阅地址</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step"><div class="flow-step-num">9</div> 导入 V2Ray 等客户端 → 全平台畅通使用</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 海外平台矩阵 ─── -->
+<section id="platforms" class="section">
+  <div class="container">
+    <div class="section-label">
+      <div class="section-num cf">2</div>
+      <span class="section-tag">出海工具矩阵</span>
+    </div>
+    <h2 class="section-title">打通网络后，这些平台是你的战场</h2>
+    <div class="divider divider-cf"></div>
+    <p class="section-intro">节点搭好之后，你需要系统性地建立海外平台账号矩阵。这是出海流量和销售的核心基础设施。</p>
+
+    <div class="card-grid card-grid-2">
+      <div class="card" style="border-top:3px solid #1877F2;">
+        <div class="card-title">社交媒体内容发布</div>
+        <div class="platform-grid" style="margin-top:12px;margin-bottom:0;">
+          <div class="platform-badge"><span>📘</span>Facebook</div>
+          <div class="platform-badge"><span>📷</span>Instagram</div>
+          <div class="platform-badge"><span>▶️</span>YouTube</div>
+          <div class="platform-badge"><span>🎵</span>TikTok</div>
+          <div class="platform-badge"><span>💼</span>LinkedIn</div>
+          <div class="platform-badge"><span>𝕏</span>X (Twitter)</div>
+        </div>
+      </div>
+      <div class="card" style="border-top:3px solid #FF9900;">
+        <div class="card-title">电商 &amp; 独立站</div>
+        <div class="platform-grid" style="margin-top:12px;margin-bottom:0;">
+          <div class="platform-badge"><span>📦</span>Amazon</div>
+          <div class="platform-badge"><span>🛍️</span>Shopify</div>
+          <div class="platform-badge"><span>🏪</span>eBay</div>
+          <div class="platform-badge"><span>🛒</span>Etsy</div>
+          <div class="platform-badge"><span>🌐</span>独立站</div>
+          <div class="platform-badge"><span>📧</span>Mailchimp</div>
+        </div>
+      </div>
+      <div class="card" style="border-top:3px solid #4285F4;">
+        <div class="card-title">谷歌生态（必备）</div>
+        <div class="platform-grid" style="margin-top:12px;margin-bottom:0;">
+          <div class="platform-badge"><span>🔍</span>Google 搜索</div>
+          <div class="platform-badge"><span>📊</span>Google Ads</div>
+          <div class="platform-badge"><span>📈</span>Analytics</div>
+          <div class="platform-badge"><span>🗺️</span>Maps 商户</div>
+        </div>
+      </div>
+      <div class="card" style="border-top:3px solid #10B981;">
+        <div class="card-title">AI 工具（提效利器）</div>
+        <div class="platform-grid" style="margin-top:12px;margin-bottom:0;">
+          <div class="platform-badge"><span>🤖</span>ChatGPT</div>
+          <div class="platform-badge"><span>♊</span>Gemini</div>
+          <div class="platform-badge"><span>🎨</span>Midjourney</div>
+          <div class="platform-badge"><span>✍️</span>Jasper</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 四大生死关 overview ─── -->
+<section id="four-gates" class="section" style="background:var(--bg-card);">
+  <div class="container">
+    <div class="section-label">
+      <div class="section-num">3</div>
+      <span class="section-tag">核心方法论</span>
+    </div>
+    <h2 class="section-title">网络打通之后，还有四道「生死关」</h2>
+    <div class="divider"></div>
+    <p class="section-intro">能访问海外平台只是起点。绝大多数出海失败，都倒在这四道关卡之一。每一关背后，都有企业用真金白银交过的学费。</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:32px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="background:#C0392B;padding:16px 18px;color:#fff;">
+          <div style="font-size:11px;letter-spacing:2px;opacity:.7;margin-bottom:4px;">第一关</div>
+          <div style="font-size:17px;font-weight:600;">国别选择</div>
+        </div>
+        <div style="padding:16px 18px;">
+          <div class="module-item">去哪里？</div>
+          <div class="module-item">科学选市场</div>
+          <div class="module-item">供应链评估</div>
+          <div class="module-item">六维决策框架</div>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="background:#E67E22;padding:16px 18px;color:#fff;">
+          <div style="font-size:11px;letter-spacing:2px;opacity:.7;margin-bottom:4px;">第二关</div>
+          <div style="font-size:17px;font-weight:600;">出海营销</div>
+        </div>
+        <div style="padding:16px 18px;">
+          <div class="module-item">卖给谁？</div>
+          <div class="module-item">本地化改造</div>
+          <div class="module-item">品牌重建</div>
+          <div class="module-item">信任体系</div>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="background:#27AE60;padding:16px 18px;color:#fff;">
+          <div style="font-size:11px;letter-spacing:2px;opacity:.7;margin-bottom:4px;">第三关</div>
+          <div style="font-size:17px;font-weight:600;">人才组织</div>
+        </div>
+        <div style="padding:16px 18px;">
+          <div class="module-item">谁来干？</div>
+          <div class="module-item">最小作战单元</div>
+          <div class="module-item">跨文化管理</div>
+          <div class="module-item">头狼理论</div>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="background:#8E44AD;padding:16px 18px;color:#fff;">
+          <div style="font-size:11px;letter-spacing:2px;opacity:.7;margin-bottom:4px;">第四关</div>
+          <div style="font-size:17px;font-weight:600;">出海合规</div>
+        </div>
+        <div style="padding:16px 18px;">
+          <div class="module-item">规则在哪里？</div>
+          <div class="module-item">法律红线</div>
+          <div class="module-item">架构设计</div>
+          <div class="module-item">风控工具库</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 第一关 ─── -->
+<section id="gate-1" class="section">
+  <div class="container">
+    <div class="section-label">
+      <div class="section-num">4</div>
+      <span class="section-tag">第一关</span>
+    </div>
+    <h2 class="section-title">国别选择 — 去哪里？</h2>
+    <div class="divider"></div>
+
+    <div class="callout callout-danger">
+      <strong>典型失败案例：</strong>某建筑企业仅凭"柬埔寨有基建需求"的直觉进入，发现当地供应链为零，"连一个铰链都要从中国发货"，成本高企、效率极低，出师不利。
+    </div>
+
+    <h3 style="font-size:16px;font-weight:600;margin-bottom:14px;color:var(--ink);">六维评估框架</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>评估维度</th><th>核心问题</th><th>重要程度</th></tr></thead>
+        <tbody>
+          <tr><td><strong>经济发展水平</strong></td><td>市场成熟度、GDP增速、消费能力</td><td><span class="highlight">★★★★★</span></td></tr>
+          <tr><td><strong>市场潜力</strong></td><td>需求规模、用户基数、增长空间</td><td><span class="highlight">★★★★★</span></td></tr>
+          <tr><td><strong>政策环境</strong></td><td>优惠政策兑现周期、政局稳定性</td><td><span class="highlight">★★★★</span></td></tr>
+          <tr><td><strong>文化差异</strong></td><td>隐性文化成本、宗教习俗、消费习惯</td><td><span class="highlight">★★★★</span></td></tr>
+          <tr><td><strong>法律法规</strong></td><td>合规门槛、劳动法、外商投资限制</td><td><span class="highlight">★★★★★</span></td></tr>
+          <tr><td><strong>产业配套</strong></td><td>供应链完整度、物流、工人技能水平</td><td><span class="highlight">★★★★</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-success">
+      <strong>重点关注三大新兴市场：</strong><strong>东南亚、中东、非洲</strong> — 经济增速快、人口结构年轻、中国产品接受度高，是当前性价比最高的出海目的地。
+    </div>
+  </div>
+</section>
+
+<!-- ─── 第二关 ─── -->
+<section id="gate-2" class="section" style="background:var(--bg-card);">
+  <div class="container">
+    <div class="section-label">
+      <div class="section-num">5</div>
+      <span class="section-tag">第二关</span>
+    </div>
+    <h2 class="section-title">出海营销 — 卖给谁？怎么卖？</h2>
+    <div class="divider"></div>
+
+    <div class="callout callout-danger">
+      <strong>最常见误区：</strong>认为"中国制造价格优势可以降维打击"，直接复制国内模式。现实是：国内知名品牌到了海外，可能与"白牌"无异，一切从零开始。
+    </div>
+
+    <div class="card-grid card-grid-2">
+      <div class="card" style="border-top:3px solid var(--red);">
+        <div class="card-title" style="color:var(--red);">❌ 错误做法</div>
+        <ul class="checklist" style="margin:0;">
+          <li>凭国内品牌知名度直接进入海外市场</li>
+          <li>照搬国内定价、渠道、营销策略</li>
+          <li>以为价格低就一定能打开市场</li>
+          <li>忽视本地文化，强推中国式产品</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--green);">
+        <div class="card-title" style="color:var(--green);">✓ 正确路径</div>
+        <ul class="checklist" style="margin:0;">
+          <li>深度洞察海外客户真实需求</li>
+          <li>对产品进行本地化改造与适配</li>
+          <li>重建适合当地的销售链路</li>
+          <li>系统建立客户关系与品牌认知</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="font-size:16px;font-weight:600;margin:24px 0 14px;color:var(--ink);">出海营销五步走</h3>
+    <ol class="steps">
+      <li><span><strong>需求洞察</strong> — 深入海外市场一线，了解当地用户真实痛点与消费习惯</span></li>
+      <li><span><strong>产品本地化</strong> — 根据目标市场需求对产品进行针对性改造，包括功能、外观、包装、语言</span></li>
+      <li><span><strong>重建销售链路</strong> — 建立适合当地的经销商 / 代理 / 电商等渠道，不照搬国内打法</span></li>
+      <li><span><strong>信任体系建立</strong> — 通过本地化服务、口碑积累、合作背书获得市场信任</span></li>
+      <li><span><strong>品牌认知沉淀</strong> — 坚持长期品牌投入，让中国品牌在海外有真实的认知度与美誉度</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ─── 第三关 ─── -->
+<section id="gate-3" class="section">
+  <div class="container">
+    <div class="section-label">
+      <div class="section-num">6</div>
+      <span class="section-tag">第三关</span>
+    </div>
+    <h2 class="section-title">出海人才与组织 — 谁来干？</h2>
+    <div class="divider"></div>
+
+    <div class="callout callout-info">
+      <strong>"选对'头狼'，出海就成功了一半。"</strong> 海外市场的特殊性与复杂性，决定了对核心领军人才的强依赖。起步阶段采用「老板 + 海外业务负责人 / 合伙人」组团模式，国内国外两头兼顾。
+    </div>
+
+    <ol class="steps">
+      <li><span><strong>选人方法论</strong> — 识别"出海基因"：能承压、有韧性、具备跨文化沟通能力</span></li>
+      <li><span><strong>跨文化沟通模型</strong> — 理解文化维度差异（权力距离、个人/集体主义等），调整管理风格</span></li>
+      <li><span><strong>最小作战单元</strong> — 轻装上阵，快速验证商业模式，降低试错成本</span></li>
+      <li><span><strong>本地化融合</strong> — 逐步提升本地员工比例，构建真正在地化的团队</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ─── 第四关 ─── -->
+<section id="gate-4" class="section" style="background:var(--bg-card);">
+  <div class="container">
+    <div class="section-label">
+      <div class="section-num">7</div>
+      <span class="section-tag">第四关</span>
+    </div>
+    <h2 class="section-title">出海合规 — 红线在哪里？</h2>
+    <div class="divider"></div>
+
+    <div class="callout callout-danger">
+      <strong>极端风险：</strong>合规问题可能让企业多年利润被劫掠一空，极端情况下管理层被起诉、被拘留。掌握合规避险清单，目标是<span class="success-text">避免 80% 的低级出海错误</span>。
+    </div>
+
+    <div class="card-grid card-grid-2">
+      <div class="card" style="border-top:3px solid var(--red);">
+        <div class="card-icon" style="background:var(--red);">⚠</div>
+        <div class="card-title">高频风险区</div>
+        <ul class="checklist" style="margin:0;">
+          <li>外汇管制与跨境资金流动违规</li>
+          <li>劳动法合规（当地用工法律差异大）</li>
+          <li>税务合规与转让定价问题</li>
+          <li>知识产权保护（商标被抢注）</li>
+          <li>数据隐私与本地化存储要求</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--green);">
+        <div class="card-icon" style="background:var(--green);">✓</div>
+        <div class="card-title">合规风控四步法</div>
+        <ol class="steps" style="margin:0;">
+          <li><span><strong>架构前置</strong> — 出海前设计合理跨境股权架构，分散风险</span></li>
+          <li><span><strong>摸清红线</strong> — 了解目标国法律红线，建立防控体系</span></li>
+          <li><span><strong>建立清单</strong> — 制定合规避险检查清单，覆盖税务、劳工、数据等</span></li>
+          <li><span><strong>持续监控</strong> — 建立常态化合规审查机制</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 导师团 ─── -->
+<section id="experts" class="section">
+  <div class="container">
+    <div class="section-label">
+      <div class="section-num">8</div>
+      <span class="section-tag">实战导师</span>
+    </div>
+    <h2 class="section-title">核心导师 — 都是真正出过海的人</h2>
+    <div class="divider"></div>
+
+    <div class="expert-grid">
+      <div class="expert-card">
+        <div class="expert-avatar">卓</div>
+        <div>
+          <div class="expert-name">卓立</div>
+          <div class="expert-role">华商出海产业联盟理事长</div>
+          <div class="expert-bio">带领千余名企业家实地考察全球 20 余个国家和地区，深度整合出海产业生态。</div>
+        </div>
+      </div>
+      <div class="expert-card">
+        <div class="expert-avatar">高</div>
+        <div>
+          <div class="expert-name">高峻</div>
+          <div class="expert-role">原华为终端全球销售与服务总裁</div>
+          <div class="expert-bio">亲历将华为终端从 0 做到 90 亿美元，覆盖 96 个海外国家。</div>
+        </div>
+      </div>
+      <div class="expert-card">
+        <div class="expert-avatar">鲍</div>
+        <div>
+          <div class="expert-name">鲍乐东</div>
+          <div class="expert-role">跨境合规律师 / 澜亭律师事务所主任</div>
+          <div class="expert-bio">曾任职宝洁、柯达、辉瑞等 500 强，专注跨境合规与出海架构设计。</div>
+        </div>
+      </div>
+      <div class="expert-card">
+        <div class="expert-avatar">向</div>
+        <div>
+          <div class="expert-name">向国华</div>
+          <div class="expert-role">原华为海外地区部副总裁</div>
+          <div class="expert-bio">"选对'头狼'，出海就成功了一半。" 增略咨询创始人，出海组织人才领域顶级专家。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote-grid">
+      <div class="quote-card">
+        <div class="quote-text">未来3年，出海战略变清晰了，打法更具象了。</div>
+        <div class="quote-author"><strong>浦俊康</strong> · 旗宸包装总经理</div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text" style="color:var(--red);font-weight:500;">早点上来课，少亏1000万。</div>
+        <div class="quote-author"><strong>俞红波</strong> · 中易美成合伙人</div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">架构设计要前置，好的设计可以分散风险，保障收益。</div>
+        <div class="quote-author"><strong>吴同学</strong> · 大健康行业</div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-text">放弃贸易出海幻想，回归商业本质，寻找真正的增长点。</div>
+        <div class="quote-author"><strong>朱振诚</strong> · 记忆的起点合伙人</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══════════════════════ CONCLUSION ══════════════════════ -->
+<section id="conclusion" class="conclusion">
+  <h2>出海核心法则</h2>
+  <p>从"能看到海外"到"在海外活下去"，每一步都需要系统化方法论，而不是运气。</p>
+  <ul class="conclusion-list">
+    <li><strong>法则 0</strong>先搭网络基础设施。用 Cloudflare 免费方案，10 分钟打通海外平台访问通道。</li>
+    <li><strong>法则 1</strong>先选地，再选路。用六维框架科学评估国别，而非凭感觉"刮彩票"。</li>
+    <li><strong>法则 2</strong>本地化优先。产品、营销、团队全面本地化，不能复制国内模式。</li>
+    <li><strong>法则 3</strong>最小作战单元。轻装上阵，快速验证，降低试错成本。</li>
+    <li><strong>法则 4</strong>合规前置。架构设计、法律风控在出海前就要布局。</li>
+    <li><strong>法则 5</strong>选对"头狼"。核心领军人才是出海成功最关键的决定性因素。</li>
+  </ul>
+</section>
+
+<footer>
+  <p>《出海第一课》方法论整理 · 网络方案参考：零度博客 freedidi.com · 出海方法论：吴晓波频道 / 华商出海联盟</p>
+  <p style="margin-top:6px;color:#999;">出海是时代赋予这一代创业者的百年机遇，既检验远见，更考验能力。</p>
+</footer>
+
+</body>
+</html>
