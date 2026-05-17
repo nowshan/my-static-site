@@ -673,7 +673,9 @@ function updateBoardSize() {
   document.documentElement.style.setProperty('--sq', sq + 'px');
   // 按比例缩放字号等
   const ratio = sq / 72;
-  document.documentElement.style.setProperty('--sq-font', Math.round(46 * ratio) + 'px');
+  // 移动端棋子放大：小屏时棋子占格子比例更高，视觉更饱满
+  const fontRatio = sq <= 50 ? 0.78 : (sq <= 65 ? 0.72 : 0.64);
+  document.documentElement.style.setProperty('--sq-font', Math.round(sq * fontRatio) + 'px');
   document.documentElement.style.setProperty('--sq-dot', Math.round(26 * ratio) + 'px');
   document.documentElement.style.setProperty('--sq-border', Math.max(3, Math.round(5 * ratio)) + 'px');
   document.documentElement.style.setProperty('--sq-coord', Math.max(9, Math.round(11 * ratio)) + 'px');
