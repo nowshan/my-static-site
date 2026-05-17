@@ -2,9 +2,18 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>国际象棋 — 人机对战</title>
+<!-- 国王皇冠 favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='8' y='30' width='48' height='26' rx='4' fill='%23c9a96e'/%3E%3Crect x='12' y='24' width='40' height='10' rx='3' fill='%23d4b87e'/%3E%3Ccircle cx='16' cy='18' r='5' fill='%23c9a96e' stroke='%23a08030' stroke-width='2'/%3E%3Ccircle cx='32' cy='14' r='6' fill='%23c9a96e' stroke='%23a08030' stroke-width='2'/%3E%3Ccircle cx='48' cy='18' r='5' fill='%23c9a96e' stroke='%23a08030' stroke-width='2'/%3E%3Cpath d='M16 18 L32 14 L48 18 L32 24Z' fill='%23e8d5a0' opacity='0.5'/%3E%3C/svg%3E">
 <style>
+  :root {
+    --sq: 72px;          /* 格子大小，由 JS 动态设置 */
+    --sq-font: 46px;     /* 棋子字号 */
+    --sq-dot: 26px;      /* 走法提示圆点 */
+    --sq-border: 5px;    /* 吃子提示边框 */
+    --sq-coord: 11px;    /* 坐标字号 */
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -14,31 +23,40 @@
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
+    padding: 12px;
+    overflow-x: hidden;
   }
   h1 {
-    font-size: 26px;
+    font-size: calc(var(--sq) * 0.28);
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
     letter-spacing: 2px;
     color: #c9a96e;
     text-align: center;
     width: 100%;
+    line-height: 1.3;
+  }
+  .subtitle {
+    font-size: calc(var(--sq) * 0.14);
+    font-weight: 400;
+    color: #7a8baa;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    text-align: center;
   }
   .game-container {
     display: flex;
-    gap: 24px;
+    gap: 20px;
     align-items: flex-start;
     flex-wrap: wrap;
     justify-content: center;
+    width: 100%;
   }
   .board-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
-  .board-section h1 {
-    margin-bottom: 14px;
+    flex-shrink: 0;
   }
   .board-wrapper {
     position: relative;
@@ -47,30 +65,32 @@
   #arrowOverlay {
     position: absolute;
     top: 0; left: 0;
-    width: 792px; height: 792px;
+    width: calc(var(--sq) * 8);
+    height: calc(var(--sq) * 8);
     pointer-events: none;
     z-index: 5;
   }
   .board {
     display: grid;
-    grid-template-columns: repeat(8, 99px);
-    grid-template-rows: repeat(8, 99px);
-    border: 4px solid #c9a96e;
+    grid-template-columns: repeat(8, var(--sq));
+    grid-template-rows: repeat(8, var(--sq));
+    border: 3px solid #c9a96e;
     border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   }
   .square {
-    width: 99px;
-    height: 99px;
+    width: var(--sq);
+    height: var(--sq);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 62px;
+    font-size: var(--sq-font);
     cursor: pointer;
     position: relative;
     transition: background 0.1s;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
   .piece-white {
     color: #ffffff;
@@ -88,7 +108,7 @@
   .square.legal-move::after {
     content: '';
     position: absolute;
-    width: 36px; height: 36px;
+    width: var(--sq-dot); height: var(--sq-dot);
     border-radius: 50%;
     background: rgba(0,0,0,0.18);
     pointer-events: none;
@@ -98,62 +118,115 @@
     position: absolute;
     inset: 0;
     border-radius: 0;
-    border: 7px solid rgba(0,0,0,0.22);
+    border: var(--sq-border) solid rgba(0,0,0,0.22);
     pointer-events: none;
   }
   .square.last-move { background: #cdd48f !important; }
   .square.last-move.dark { background: #aaa23a !important; }
   .square.in-check { background: #e87474 !important; }
+  /* 马将军次数徽章 */
+  .knight-check-badge {
+    position: absolute;
+    top: 1px; right: 1px;
+    background: #e74c3c;
+    color: #fff;
+    font-size: calc(var(--sq) * 0.14);
+    font-weight: 700;
+    width: calc(var(--sq) * 0.24);
+    height: calc(var(--sq) * 0.24);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  }
+  /* 变形闪光动画 */
+  @keyframes transformFlash {
+    0%   { box-shadow: inset 0 0 0 0 rgba(231,76,60,0); }
+    30%  { box-shadow: inset 0 0 30px 10px rgba(231,76,60,0.7); }
+    100% { box-shadow: inset 0 0 0 0 rgba(231,76,60,0); }
+  }
+  .square.knight-transform {
+    animation: transformFlash 1s ease-out;
+  }
+  /* Toast 通知 */
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: linear-gradient(135deg, #2c3e50, #1a1a2e);
+    border: 2px solid #e74c3c;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 300;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    text-align: center;
+    max-width: 90vw;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
   .coords-col {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    height: 792px;
-    font-size: 13px;
+    height: calc(var(--sq) * 8);
+    font-size: var(--sq-coord);
     color: #888;
-    padding: 0 5px;
+    padding: 0 3px;
     font-weight: 500;
   }
   .coords-row {
     display: flex;
     justify-content: space-around;
-    width: 792px;
-    font-size: 13px;
+    width: calc(var(--sq) * 8);
+    font-size: var(--sq-coord);
     color: #888;
-    padding: 5px 0;
+    padding: 3px 0;
     font-weight: 500;
   }
   .side-panel {
-    width: 200px;
+    width: 180px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
+    flex-shrink: 0;
   }
   .panel-card {
     background: #16213e;
     border: 1px solid #2a3f6f;
     border-radius: 10px;
-    padding: 14px;
+    padding: 12px;
   }
   .panel-card h3 {
-    font-size: 12px;
+    font-size: 11px;
     color: #7a8baa;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
   .status-text {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     color: #c9a96e;
     line-height: 1.5;
-    min-height: 40px;
+    min-height: 36px;
   }
   .turn-indicator {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: 12px;
   }
   .turn-dot {
     width: 12px; height: 12px;
@@ -164,14 +237,14 @@
   .turn-dot.black { background: #222; border-color: #666; }
   select, button {
     width: 100%;
-    padding: 8px 10px;
+    padding: 7px 8px;
     border-radius: 6px;
     border: 1px solid #2a3f6f;
     background: #0f3460;
     color: #e0e0e0;
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     outline: none;
     transition: background 0.15s, border-color 0.15s;
   }
@@ -184,9 +257,9 @@
   }
   button.primary:hover { background: #d4b87e; }
   .move-history {
-    max-height: 200px;
+    max-height: 160px;
     overflow-y: auto;
-    font-size: 12px;
+    font-size: 11px;
     color: #aaa;
     line-height: 1.8;
   }
@@ -194,12 +267,12 @@
   .move-history::-webkit-scrollbar-track { background: #0a0a1a; }
   .move-history::-webkit-scrollbar-thumb { background: #2a3f6f; border-radius: 2px; }
   .move-row { display: flex; gap: 4px; }
-  .move-num { color: #555; min-width: 22px; }
-  .move-item { min-width: 48px; }
+  .move-num { color: #555; min-width: 20px; }
+  .move-item { min-width: 44px; }
   .captured-pieces {
-    font-size: 22px;
+    font-size: 20px;
     line-height: 1.4;
-    min-height: 28px;
+    min-height: 24px;
     letter-spacing: -2px;
   }
   .thinking-overlay {
@@ -209,8 +282,8 @@
     transform: translateX(-50%);
     background: rgba(0,0,0,0.82);
     color: #c9a96e;
-    font-size: 13px;
-    padding: 6px 16px;
+    font-size: 12px;
+    padding: 5px 14px;
     border-radius: 20px;
     display: none;
     white-space: nowrap;
@@ -230,22 +303,31 @@
     background: #16213e;
     border: 2px solid #c9a96e;
     border-radius: 12px;
-    padding: 20px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
-  .promotion-box p { font-size: 14px; color: #c9a96e; }
-  .promotion-pieces { display: flex; gap: 8px; }
+  .promotion-box p { font-size: 13px; color: #c9a96e; }
+  .promotion-pieces { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
   .promotion-piece {
-    font-size: 52px;
+    font-size: 44px;
     cursor: pointer;
-    padding: 8px;
+    padding: 6px;
     border-radius: 8px;
     transition: background 0.1s;
+    position: relative;
   }
   .promotion-piece:hover { background: rgba(201,169,110,0.2); }
+  .promotion-piece .piece-label {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    color: #7a8baa;
+    white-space: nowrap;
+  }
 
   /* 胜利/和棋弹窗 */
   .result-modal {
@@ -264,11 +346,11 @@
     background: linear-gradient(145deg, #1a2a50, #16213e);
     border: 2px solid #c9a96e;
     border-radius: 18px;
-    padding: 36px 48px;
+    padding: 32px 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.7);
     animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
   }
@@ -276,33 +358,139 @@
     from { transform: scale(0.7); opacity: 0; }
     to   { transform: scale(1);   opacity: 1; }
   }
-  .result-icon { font-size: 64px; line-height: 1; }
+  .result-icon { font-size: 56px; line-height: 1; }
   .result-title {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: #c9a96e;
     letter-spacing: 1px;
     text-align: center;
   }
   .result-subtitle {
-    font-size: 15px;
+    font-size: 14px;
     color: #8899bb;
     text-align: center;
   }
   .result-btn {
-    margin-top: 8px;
-    padding: 10px 36px;
+    margin-top: 6px;
+    padding: 9px 32px;
     border-radius: 8px;
     border: none;
     background: #c9a96e;
     color: #1a1a2e;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.15s, transform 0.1s;
     width: auto;
   }
   .result-btn:hover { background: #d4b87e; transform: scale(1.04); }
+
+  /* ========== 蜕变规则面板（折叠式） ========== */
+  .transform-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .transform-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 6px 10px;
+    border-left: 3px solid #444;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .transform-item:hover {
+    background: rgba(255,255,255,0.08);
+  }
+  .transform-item:nth-child(1) { border-left-color: #e74c3c; }
+  .transform-item:nth-child(2) { border-left-color: #2980b9; }
+  .transform-item:nth-child(3) { border-left-color: #8e44ad; }
+  .transform-item-cannon { border-left-color: #e67e22 !important; }
+  .transform-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .transform-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+  .transform-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #ddd;
+  }
+  .transform-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .transform-expand-hint {
+    margin-left: auto;
+    font-size: 10px;
+    color: #666;
+    transition: opacity 0.2s;
+  }
+  .transform-item:hover .transform-expand-hint {
+    opacity: 0;
+  }
+  .transform-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.2s ease, margin-top 0.2s ease;
+    opacity: 0;
+    margin-top: 0;
+  }
+  .transform-item:hover .transform-body {
+    max-height: 80px;
+    opacity: 1;
+    margin-top: 4px;
+  }
+  .transform-desc {
+    font-size: 13px;
+    color: #bbb;
+    line-height: 1.5;
+  }
+  .transform-detail {
+    font-size: 12px;
+    color: #888;
+    font-style: italic;
+  }
+  .transform-arrow {
+    font-size: 14px;
+    color: #c9a96e;
+    margin-top: 3px;
+    font-weight: 500;
+  }
+  .badge-demo {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  /* ========== 手机适配 ========== */
+  @media (max-width: 960px) {
+    .game-container { flex-direction: column; align-items: center; }
+    .side-panel { width: 100%; max-width: 600px; flex-direction: row; flex-wrap: wrap; gap: 8px; }
+    .side-panel .panel-card { flex: 1 1 140px; min-width: 140px; }
+  }
+  @media (max-width: 480px) {
+    body { padding: 6px; }
+    .side-panel .panel-card { flex: 1 1 100%; min-width: 100%; padding: 10px; }
+    .result-box { padding: 24px 20px; }
+  }
 </style>
 </head>
 <body>
@@ -310,6 +498,7 @@
 <div class="game-container">
   <div class="board-section">
     <h1>国际象棋 — 人机对战</h1>
+    <div class="subtitle">Chess vs AI</div>
     <div style="position:relative;display:inline-block">
     <div style="display:flex;align-items:flex-start">
       <div class="coords-col" id="rankCoords"></div>
@@ -338,9 +527,9 @@
     <div class="panel-card">
       <h3>游戏状态</h3>
       <div class="status-text" id="statusText">白方先手，请落子</div>
-      <div class="turn-indicator" style="margin-top:8px">
+      <div class="turn-indicator" style="margin-top:6px">
         <div class="turn-dot white" id="whiteDot"></div>
-        <span id="turnText" style="font-size:12px;color:#aaa">白方回合</span>
+        <span id="turnText" style="font-size:11px;color:#aaa">白方回合</span>
         <div class="turn-dot black" id="blackDot"></div>
       </div>
     </div>
@@ -348,21 +537,21 @@
     <div class="panel-card">
       <h3>已吃棋子</h3>
       <div class="captured-pieces" id="capturedWhite"></div>
-      <div style="font-size:11px;color:#555;margin:2px 0">白方吃得</div>
+      <div style="font-size:10px;color:#555;margin:2px 0">白方吃得</div>
       <div class="captured-pieces" id="capturedBlack"></div>
-      <div style="font-size:11px;color:#555;margin:2px 0">黑方吃得</div>
+      <div style="font-size:10px;color:#555;margin:2px 0">黑方吃得</div>
     </div>
 
     <div class="panel-card">
       <h3>设置</h3>
-      <label style="font-size:12px;color:#888;display:block;margin-bottom:4px">AI 难度</label>
+      <label style="font-size:11px;color:#888;display:block;margin-bottom:3px">AI 难度</label>
       <select id="difficultySelect">
         <option value="1">简单（深度 1）</option>
         <option value="2">普通（深度 2）</option>
         <option value="3" selected>困难（深度 3）</option>
         <option value="4">专家（深度 4）</option>
       </select>
-      <label style="font-size:12px;color:#888;display:block;margin-bottom:4px">执棋颜色</label>
+      <label style="font-size:11px;color:#888;display:block;margin-bottom:3px">执棋颜色</label>
       <select id="colorSelect">
         <option value="w">执白（先手）</option>
         <option value="b">执黑（后手）</option>
@@ -374,6 +563,72 @@
     <div class="panel-card">
       <h3>走法记录</h3>
       <div class="move-history" id="moveHistory"></div>
+    </div>
+
+    <div class="panel-card">
+      <h3>⚡ 蜕变规则</h3>
+      <div class="transform-rules">
+        <div class="transform-item">
+          <div class="transform-header">
+            <span class="transform-icon">♘</span>
+            <span class="transform-name">马</span>
+            <span class="transform-badge" style="background:#e74c3c">3</span>
+            <span class="transform-expand-hint">▸ 悬停展开</span>
+          </div>
+          <div class="transform-body">
+            <div class="transform-desc">
+              将军 <b>3 次</b>未将死对方 → 蜕变为中国象棋 <b>马</b><br>
+              <span class="transform-detail">走法变为蹩马腿：先直后斜，马腿有子则不可走</span>
+            </div>
+            <div class="transform-arrow">♘ → 马 <span class="badge-demo" style="background:#e74c3c">蹩腿</span></div>
+          </div>
+        </div>
+        <div class="transform-item">
+          <div class="transform-header">
+            <span class="transform-icon">♗</span>
+            <span class="transform-name">象</span>
+            <span class="transform-badge" style="background:#2980b9">3</span>
+            <span class="transform-expand-hint">▸ 悬停展开</span>
+          </div>
+          <div class="transform-body">
+            <div class="transform-desc">
+              将军 <b>3 次</b>未将死对方 → 蜕变为中国象棋 <b>象</b><br>
+              <span class="transform-detail">走法变为走田字+塞象眼+不能过河</span>
+            </div>
+            <div class="transform-arrow">♗ → 相 <span class="badge-demo" style="background:#2980b9">塞眼</span></div>
+          </div>
+        </div>
+        <div class="transform-item">
+          <div class="transform-header">
+            <span class="transform-icon">♕</span>
+            <span class="transform-name">后</span>
+            <span class="transform-badge" style="background:#8e44ad">3</span>
+            <span class="transform-expand-hint">▸ 悬停展开</span>
+          </div>
+          <div class="transform-body">
+            <div class="transform-desc">
+              将军 <b>3 次</b>未将死对方 → 蜕变为 <b>仅直线走法</b><br>
+              <span class="transform-detail">失去斜线能力，只能像车一样横竖走</span>
+            </div>
+            <div class="transform-arrow">♕ → 車 <span class="badge-demo" style="background:#8e44ad">仅直线</span></div>
+          </div>
+        </div>
+        <div class="transform-item transform-item-cannon">
+          <div class="transform-header">
+            <span class="transform-icon">♙</span>
+            <span class="transform-name">兵</span>
+            <span class="transform-badge" style="background:#e67e22">底</span>
+            <span class="transform-expand-hint">▸ 悬停展开</span>
+          </div>
+          <div class="transform-body">
+            <div class="transform-desc">
+              兵触底升变可选 <b>炮</b>，走法同中国象棋炮<br>
+              <span class="transform-detail">直线行走，隔一子跳吃（翻山炮）</span>
+            </div>
+            <div class="transform-arrow">♙ → 炮 <span class="badge-demo" style="background:#e67e22">隔吃</span></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -394,13 +649,45 @@
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
+// ========================= Toast 通知 =========================
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ========================= 自适应尺寸 =========================
+function updateBoardSize() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  // 棋盘可用宽度：屏幕宽度减去两侧 padding 和坐标列
+  const available = Math.min(vw - 48, vh - 160);
+  // 最大 99px/格，最小 36px/格
+  const sq = Math.max(36, Math.min(99, Math.floor(available / 8)));
+  document.documentElement.style.setProperty('--sq', sq + 'px');
+  // 按比例缩放字号等
+  const ratio = sq / 72;
+  document.documentElement.style.setProperty('--sq-font', Math.round(46 * ratio) + 'px');
+  document.documentElement.style.setProperty('--sq-dot', Math.round(26 * ratio) + 'px');
+  document.documentElement.style.setProperty('--sq-border', Math.max(3, Math.round(5 * ratio)) + 'px');
+  document.documentElement.style.setProperty('--sq-coord', Math.max(9, Math.round(11 * ratio)) + 'px');
+}
+window.addEventListener('resize', () => { updateBoardSize(); renderBoard(); });
+updateBoardSize();
+
 // ========================= 棋子定义 =========================
 const PIECES = {
-  wK:'♔', wQ:'♕', wR:'♖', wB:'♗', wN:'♘', wP:'♙',
-  bK:'♚', bQ:'♛', bR:'♜', bB:'♝', bN:'♞', bP:'♟'
+  wK:'♔', wQ:'♕', wR:'♖', wB:'♗', wN:'♘', wP:'♙', wC:'炮', wH:'马', wE:'相', wT:'車',
+  bK:'♚', bQ:'♛', bR:'♜', bB:'♝', bN:'♞', bP:'♟', bC:'砲', bH:'馬', bE:'象', bT:'車'
 };
-const PIECE_VALUES = { P:100, N:320, B:330, R:500, Q:900, K:20000 };
+const PIECE_VALUES = { P:100, N:320, B:330, R:500, Q:900, K:20000, C:450, H:300, E:250, T:500 };
+const PIECE_NAMES = { Q:'后', R:'车', B:'象', N:'马', C:'炮', H:'马(蹩腿)', E:'象(塞眼)', T:'后(仅直线)' };
 
 // 位置奖励表（让 AI 有走位意识）
 const PST = {
@@ -463,28 +750,78 @@ const PST = {
     [-10,-20,-20,-20,-20,-20,-20,-10],
     [ 20, 20,  0,  0,  0,  0, 20, 20],
     [ 20, 30, 10,  0,  0, 10, 30, 20]
+  ],
+  // 炮的位置奖励表（类似车但稍弱，偏好开放线）
+  C: [
+    [ 0,  0,  0,  0,  0,  0,  0,  0],
+    [ 5, 10, 10, 10, 10, 10, 10,  5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  5,  5,  0,  0, -5],
+    [-5,  0,  0,  5,  5,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [ 0,  0,  0,  5,  5,  0,  0,  0]
+  ],
+  // 中国象棋马（蹩马腿）位置奖励表，比骑士略弱
+  H: [
+    [-50,-40,-30,-30,-30,-30,-40,-50],
+    [-40,-20,  0,  0,  0,  0,-20,-40],
+    [-30,  0, 10, 12, 12, 10,  0,-30],
+    [-30,  5, 12, 18, 18, 12,  5,-30],
+    [-30,  0, 12, 18, 18, 12,  0,-30],
+    [-30,  5, 10, 12, 12, 10,  5,-30],
+    [-40,-20,  0,  5,  5,  0,-20,-40],
+    [-50,-40,-30,-30,-30,-30,-40,-50]
+  ],
+  // 中国象棋象（塞象眼+不过河）位置奖励表
+  // 象只能在本方半盘活动，过河位置给极低分
+  E: [
+    [-80,-80,-80,-80,-80,-80,-80,-80],
+    [-80,-80,-80,-80,-80,-80,-80,-80],
+    [-80,-80,-80,-80,-80,-80,-80,-80],
+    [-80,-80,-80,-80,-80,-80,-80,-80],
+    [ 10,  0, 10,  0,  0, 10,  0, 10],
+    [  0, 10,  0, 10, 10,  0, 10,  0],
+    [ 10,  0, 10,  0,  0, 10,  0, 10],
+    [  0,  5,  0,  5,  5,  0,  5,  0]
+  ],
+  // 后蜕变（仅直线走法，等同车的走法）
+  T: [
+    [ 0,  0,  0,  0,  0,  0,  0,  0],
+    [ 5, 10, 10, 10, 10, 10, 10,  5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [-5,  0,  0,  0,  0,  0,  0, -5],
+    [ 0,  0,  0,  5,  5,  0,  0,  0]
   ]
 };
 
 // ========================= 游戏状态 =========================
 let board = [];
-let turn = 'w';           // 'w' or 'b'
+let turn = 'w';
 let playerColor = 'w';
-let selected = null;      // {row, col}
+let selected = null;
 let legalMovesCache = [];
 let capturedByWhite = [];
 let capturedByBlack = [];
 let moveHistory = [];
-let historyStack = [];    // 用于悔棋
+let historyStack = [];
 let lastMove = null;
 let castlingRights = { wK: true, wQ: true, bK: true, bQ: true };
-let enPassantTarget = null; // {row, col}
+let enPassantTarget = null;
 let gameOver = false;
 let aiDepth = 3;
 let pendingPromotion = null;
-let positionHistory = {};  // 局面哈希 -> 出现次数（用于三次重复判和）
+let positionHistory = {};
+let knightCheckCounts = {};  // key: "row,col" → value: 将军次数（马专用）
+let knightTransformPos = null;  // 刚变形的马的位置，用于闪光动画
+let bishopCheckCounts = {};  // key: "row,col" → value: 将军次数（象专用）
+let bishopTransformPos = null;  // 刚变形的象的位置，用于闪光动画
+let queenCheckCounts = {};   // key: "row,col" → value: 将军次数（后专用）
+let queenTransformPos = null;  // 刚变形的后的位置，用于闪光动画
 
-// 生成当前局面的哈希字符串（棋盘布局 + 行棋方 + 易位权 + 过路兵目标）
 function boardHash(b, t, castling, enPassant) {
   const boardStr = b.map(r => r.map(p => p || '.').join('')).join('|');
   const epStr = enPassant ? enPassant.row + enPassant.col : '-';
@@ -543,17 +880,50 @@ function getPseudoLegalMoves(b, row, col, enPassant, castling) {
     }
   };
 
+  // 炮的走法：不吃子时如车直线滑行；吃子时必须隔一子（炮架）跳吃
+  const cannonSlide = (drs, dcs) => {
+    for (let i = 0; i < drs.length; i++) {
+      let jumped = false; // 是否已经跳过炮架
+      for (let step = 1; step < 8; step++) {
+        const nr = row + drs[i]*step, nc = col + dcs[i]*step;
+        if (nr < 0 || nr >= 8 || nc < 0 || nc >= 8) break;
+        const target = b[nr][nc];
+        if (!jumped) {
+          // 还没跳过炮架
+          if (target) {
+            // 遇到第一个子，标记为炮架
+            jumped = true;
+          } else {
+            // 空位，可以移动到此（不吃子）
+            moves.push({ from: {row, col}, to: {row: nr, col: nc} });
+          }
+        } else {
+          // 已跳过炮架
+          if (target) {
+            // 跳过炮架后遇到的第一个子
+            if (getColor(target) === opp) {
+              // 是敌方，可以吃
+              moves.push({ from: {row, col}, to: {row: nr, col: nc} });
+            }
+            // 无论敌友，都不能继续
+            break;
+          }
+          // 空位，跳过炮架后不能落子（只能吃不能走空位）
+        }
+      }
+    }
+  };
+
   switch(type) {
     case 'P':
       // 前进
       if (!b[row+dir][col]) {
         const isPromo = (row+dir === 0 || row+dir === 7);
         if (isPromo) {
-          for (const p of ['Q','R','B','N'])
+          for (const p of ['Q','R','B','N','C'])
             moves.push({ from:{row,col}, to:{row:row+dir,col}, promotion: p });
         } else {
           moves.push({ from:{row,col}, to:{row:row+dir,col} });
-          // 两步
           const startRow = color === 'w' ? 6 : 1;
           if (row === startRow && !b[row+2*dir][col])
             moves.push({ from:{row,col}, to:{row:row+2*dir,col}, doublePush: true });
@@ -566,13 +936,12 @@ function getPseudoLegalMoves(b, row, col, enPassant, castling) {
           const isPromo = (nr === 0 || nr === 7);
           if (b[nr][nc] && getColor(b[nr][nc]) === opp) {
             if (isPromo) {
-              for (const p of ['Q','R','B','N'])
+              for (const p of ['Q','R','B','N','C'])
                 moves.push({ from:{row,col}, to:{row:nr,col:nc}, promotion: p });
             } else {
               moves.push({ from:{row,col}, to:{row:nr,col:nc} });
             }
           }
-          // 过路兵
           if (enPassant && enPassant.row === nr && enPassant.col === nc) {
             moves.push({ from:{row,col}, to:{row:nr,col:nc}, enPassant: true });
           }
@@ -583,8 +952,53 @@ function getPseudoLegalMoves(b, row, col, enPassant, castling) {
       for (const [dr, dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]])
         addMove(row+dr, col+dc);
       break;
+    case 'H':
+      // 中国象棋马：L型走法 + 蹩马腿
+      // 蹩马腿规则：先直走一步（"马腿"），如果该位置有棋子则不能走
+      const horseDirs = [
+        { dr:-2, dc:-1, legR:-1, legC: 0 },  // 向上两步，先看上方一格
+        { dr:-2, dc: 1, legR:-1, legC: 0 },
+        { dr: 2, dc:-1, legR: 1, legC: 0 },  // 向下两步，先看下方一格
+        { dr: 2, dc: 1, legR: 1, legC: 0 },
+        { dr:-1, dc:-2, legR: 0, legC:-1 },  // 向左两步，先看左方一格
+        { dr:-1, dc: 2, legR: 0, legC: 1 },
+        { dr: 1, dc:-2, legR: 0, legC:-1 },
+        { dr: 1, dc: 2, legR: 0, legC: 1 },
+      ];
+      for (const hd of horseDirs) {
+        const nr = row + hd.dr, nc = col + hd.dc;
+        const lr = row + hd.legR, lc = col + hd.legC;
+        if (nr < 0 || nr >= 8 || nc < 0 || nc >= 8) continue;
+        // 蹩马腿检查：马腿位置有子则不能走
+        if (lr >= 0 && lr < 8 && lc >= 0 && lc < 8 && b[lr][lc]) continue;
+        const target = b[nr][nc];
+        if (!target || getColor(target) === opp) {
+          moves.push({ from: {row, col}, to: {row: nr, col: nc} });
+        }
+      }
+      break;
     case 'B':
       slide([1,1,-1,-1],[1,-1,1,-1]);
+      break;
+    case 'E':
+      // 中国象棋象：走田字（斜走2格）+ 塞象眼 + 不能过河
+      // 白方半盘 rows 4-7，黑方半盘 rows 0-3
+      const homeMin = color === 'w' ? 4 : 0;
+      const homeMax = color === 'w' ? 7 : 3;
+      const elephantDirs = [[-2,-2],[-2,2],[2,-2],[2,2]]; // 田字方向
+      for (const [dr, dc] of elephantDirs) {
+        const nr = row + dr, nc = col + dc;
+        if (nr < 0 || nr >= 8 || nc < 0 || nc >= 8) continue;
+        // 不能过河
+        if (nr < homeMin || nr > homeMax) continue;
+        // 塞象眼检查：中间斜一格位置有子则不能走
+        const eyeR = row + dr / 2, eyeC = col + dc / 2;
+        if (b[eyeR][eyeC]) continue;
+        const target = b[nr][nc];
+        if (!target || getColor(target) === opp) {
+          moves.push({ from: {row, col}, to: {row: nr, col: nc} });
+        }
+      }
       break;
     case 'R':
       slide([1,-1,0,0],[0,0,1,-1]);
@@ -592,10 +1006,17 @@ function getPseudoLegalMoves(b, row, col, enPassant, castling) {
     case 'Q':
       slide([1,1,-1,-1,1,-1,0,0],[1,-1,1,-1,0,0,1,-1]);
       break;
+    case 'T':
+      // 后蜕变：只能直线走（同车），失去斜线能力
+      slide([1,-1,0,0],[0,0,1,-1]);
+      break;
+    case 'C':
+      // 炮：不吃子如车滑行，吃子必须翻山（隔一子跳吃）
+      cannonSlide([1,-1,0,0],[0,0,1,-1]);
+      break;
     case 'K':
       for (const [dr, dc] of [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]])
         addMove(row+dr, col+dc);
-      // 王车易位
       if (castling) {
         const rank = color === 'w' ? 7 : 0;
         if (row === rank && col === 4) {
@@ -667,7 +1088,6 @@ function applyMove(b, move, castling, enPassant) {
 
 function getLegalMoves(b, color, castling, enPassant) {
   const moves = [];
-  const opp = color === 'w' ? 'b' : 'w';
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
       if (b[r][c] && getColor(b[r][c]) === color) {
@@ -718,11 +1138,10 @@ function minimax(b, depth, alpha, beta, isMax, castling, enPassant) {
 
   if (moves.length === 0) {
     if (isInCheck(b, color)) return isMax ? -100000 + (aiDepth - depth) : 100000 - (aiDepth - depth);
-    return 0; // 平局
+    return 0;
   }
   if (depth === 0) return evaluate(b);
 
-  // 走法排序：吃子优先
   moves.sort((ma, mb) => {
     const aCapture = b[ma.to.row][ma.to.col] ? 1 : 0;
     const bCapture = b[mb.to.row][mb.to.col] ? 1 : 0;
@@ -764,8 +1183,6 @@ function getBestMove() {
   let bestScore = color === 'w' ? -Infinity : Infinity;
   let bestMove = null;
   nodeCount = 0;
-
-  // 加一点随机性防止每次都走相同开局
   const shuffled = [...moves].sort(() => Math.random() - 0.5);
 
   for (const m of shuffled) {
@@ -798,12 +1215,16 @@ function newGame() {
   enPassantTarget = null;
   gameOver = false;
   positionHistory = {};
-  // 记录初始局面
+  knightCheckCounts = {};
+  knightTransformPos = null;
+  bishopCheckCounts = {};
+  bishopTransformPos = null;
+  queenCheckCounts = {};
+  queenTransformPos = null;
   const initHash = boardHash(board, turn, castlingRights, enPassantTarget);
   positionHistory[initHash] = 1;
   renderBoard();
   updateUI();
-  // 若玩家执黑，AI 先手
   if (playerColor === 'b') {
     setTimeout(doAiMove, 300);
   }
@@ -815,14 +1236,12 @@ function squareClick(row, col) {
 
   const piece = board[row][col];
 
-  // 已有选中棋子，尝试移动
   if (selected) {
     const move = legalMovesCache.find(m =>
       m.to.row === row && m.to.col === col &&
       m.from.row === selected.row && m.from.col === selected.col &&
       !m.promotion
     );
-    // 兵升变有多个候选走法
     const promoMoves = legalMovesCache.filter(m =>
       m.to.row === row && m.to.col === col &&
       m.from.row === selected.row && m.from.col === selected.col &&
@@ -838,19 +1257,16 @@ function squareClick(row, col) {
       executeMove(move);
       return;
     }
-    // 点到己方棋子，切换选中
     if (piece && getColor(piece) === playerColor) {
       selectPiece(row, col);
       return;
     }
-    // 点到空地或敌方但不合法，取消选中
     selected = null;
     legalMovesCache = [];
     renderBoard();
     return;
   }
 
-  // 选中棋子
   if (piece && getColor(piece) === playerColor) {
     selectPiece(row, col);
   }
@@ -868,7 +1284,14 @@ function showPromotionModal(promoMoves) {
   const container = document.getElementById('promotionPieces');
   container.innerHTML = '';
   const color = playerColor;
-  const pieces = { Q: color==='w'?'♕':'♛', R: color==='w'?'♖':'♜', B: color==='w'?'♗':'♝', N: color==='w'?'♘':'♞' };
+  // 升变选项：后、车、象、马、炮
+  const pieces = {
+    Q: color==='w'?'♕':'♛',
+    R: color==='w'?'♖':'♜',
+    B: color==='w'?'♗':'♝',
+    N: color==='w'?'♘':'♞',
+    C: color==='w'?'炮':'砲'
+  };
   for (const [type, symbol] of Object.entries(pieces)) {
     const move = promoMoves.find(m => m.promotion === type);
     if (move) {
@@ -876,6 +1299,11 @@ function showPromotionModal(promoMoves) {
       div.className = 'promotion-piece';
       div.textContent = symbol;
       div.onclick = () => { modal.classList.remove('show'); executeMove(move); };
+      // 棋子类型名称标签
+      const label = document.createElement('span');
+      label.className = 'piece-label';
+      label.textContent = PIECE_NAMES[type] || type;
+      div.appendChild(label);
       container.appendChild(div);
     }
   }
@@ -887,10 +1315,9 @@ function showResultModal(icon, title, subtitle) {
   document.getElementById('resultIcon').textContent = icon;
   document.getElementById('resultTitle').textContent = title;
   document.getElementById('resultSubtitle').textContent = subtitle;
-  // 重置动画（每次关闭再开都能播放）
   const box = document.querySelector('.result-box');
   box.style.animation = 'none';
-  box.offsetHeight; // reflow
+  box.offsetHeight;
   box.style.animation = '';
   document.getElementById('resultModal').classList.add('show');
 }
@@ -901,21 +1328,22 @@ function closeResultAndNewGame() {
 }
 
 function executeMove(move) {
-  // 保存历史（含局面哈希表快照，用于悔棋还原）
   historyStack.push({
     board: board.map(r => [...r]),
     turn, castlingRights: { ...castlingRights },
     enPassantTarget, capturedByWhite: [...capturedByWhite],
     capturedByBlack: [...capturedByBlack],
     moveHistory: [...moveHistory], lastMove,
-    positionHistory: { ...positionHistory }
+    positionHistory: { ...positionHistory },
+    knightCheckCounts: { ...knightCheckCounts },
+    bishopCheckCounts: { ...bishopCheckCounts },
+    queenCheckCounts: { ...queenCheckCounts }
   });
 
   const piece = board[move.from.row][move.from.col];
   const captured = board[move.to.row][move.to.col];
   const color = getColor(piece);
 
-  // 过路兵吃子
   if (move.enPassant) {
     const capturedPawn = board[move.from.row][move.to.col];
     if (color === 'w') capturedByWhite.push(capturedPawn);
@@ -923,15 +1351,18 @@ function executeMove(move) {
   } else if (captured) {
     if (color === 'w') capturedByWhite.push(captured);
     else capturedByBlack.push(captured);
+    // 被吃掉的如果是马/象/后，清理其将军计数
+    const capKey = move.to.row + ',' + move.to.col;
+    delete knightCheckCounts[capKey];
+    delete bishopCheckCounts[capKey];
+    delete queenCheckCounts[capKey];
   }
 
-  // 更新 en passant
   enPassantTarget = move.doublePush
     ? { row: move.to.row + (color==='w'?1:-1), col: move.to.col }
     : null;
 
   board = applyMove(board, move, castlingRights, null);
-  // 更新易位权
   const type = getType(piece);
   if (type === 'K') { castlingRights[color+'K'] = false; castlingRights[color+'Q'] = false; }
   if (type === 'R') {
@@ -946,13 +1377,87 @@ function executeMove(move) {
   selected = null;
   legalMovesCache = [];
 
-  // 记录走法
   const notation = buildNotation(move, piece, captured);
   moveHistory.push({ color, notation });
 
   turn = color === 'w' ? 'b' : 'w';
 
-  // ——— 三次重复局面判和 ———
+  // ===== 马将军次数追踪 & 变形逻辑 =====
+  const movingType = getType(piece);
+  let knightTransformed = false;
+  if (movingType === 'N') {
+    const oldKey = move.from.row + ',' + move.from.col;
+    const newKey = move.to.row + ',' + move.to.col;
+    // 转移将军计数到新位置
+    if (knightCheckCounts[oldKey] !== undefined) {
+      knightCheckCounts[newKey] = knightCheckCounts[oldKey];
+      delete knightCheckCounts[oldKey];
+    }
+    // 检查是否将军
+    if (isInCheck(board, turn)) {
+      knightCheckCounts[newKey] = (knightCheckCounts[newKey] || 0) + 1;
+      // 将军3次未将死 → 变为中国象棋马
+      if (knightCheckCounts[newKey] >= 3) {
+        board[move.to.row][move.to.col] = color + 'H';
+        delete knightCheckCounts[newKey];
+        knightTransformed = true;
+        knightTransformPos = { row: move.to.row, col: move.to.col };
+        const colorName = color === 'w' ? '白方' : '黑方';
+        showToast(`⚡ ${colorName}马将军3次未将死，变为中国象棋马（蹩马腿）！`);
+      }
+    }
+  }
+
+  // ===== 象将军次数追踪 & 变形逻辑 =====
+  let bishopTransformed = false;
+  if (movingType === 'B') {
+    const oldKey = move.from.row + ',' + move.from.col;
+    const newKey = move.to.row + ',' + move.to.col;
+    // 转移将军计数到新位置
+    if (bishopCheckCounts[oldKey] !== undefined) {
+      bishopCheckCounts[newKey] = bishopCheckCounts[oldKey];
+      delete bishopCheckCounts[oldKey];
+    }
+    // 检查是否将军
+    if (isInCheck(board, turn)) {
+      bishopCheckCounts[newKey] = (bishopCheckCounts[newKey] || 0) + 1;
+      // 将军3次未将死 → 变为中国象棋象
+      if (bishopCheckCounts[newKey] >= 3) {
+        board[move.to.row][move.to.col] = color + 'E';
+        delete bishopCheckCounts[newKey];
+        bishopTransformed = true;
+        bishopTransformPos = { row: move.to.row, col: move.to.col };
+        const colorName = color === 'w' ? '白方' : '黑方';
+        showToast(`⚡ ${colorName}象将军3次未将死，变为中国象棋象（塞眼+不过河）！`);
+      }
+    }
+  }
+
+  // ===== 后将军次数追踪 & 变形逻辑 =====
+  let queenTransformed = false;
+  if (movingType === 'Q') {
+    const oldKey = move.from.row + ',' + move.from.col;
+    const newKey = move.to.row + ',' + move.to.col;
+    // 转移将军计数到新位置
+    if (queenCheckCounts[oldKey] !== undefined) {
+      queenCheckCounts[newKey] = queenCheckCounts[oldKey];
+      delete queenCheckCounts[oldKey];
+    }
+    // 检查是否将军
+    if (isInCheck(board, turn)) {
+      queenCheckCounts[newKey] = (queenCheckCounts[newKey] || 0) + 1;
+      // 将军3次未将死 → 变为"车"模式（仅直线走）
+      if (queenCheckCounts[newKey] >= 3) {
+        board[move.to.row][move.to.col] = color + 'T';
+        delete queenCheckCounts[newKey];
+        queenTransformed = true;
+        queenTransformPos = { row: move.to.row, col: move.to.col };
+        const colorName = color === 'w' ? '白方' : '黑方';
+        showToast(`⚡ ${colorName}后将军3次未将死，蜕变为仅直线走法（同车）！`);
+      }
+    }
+  }
+
   const hash = boardHash(board, turn, castlingRights, enPassantTarget);
   positionHistory[hash] = (positionHistory[hash] || 0) + 1;
   if (positionHistory[hash] >= 3) {
@@ -967,14 +1472,13 @@ function executeMove(move) {
   renderBoard();
   updateUI();
 
-  // 检查游戏结束
   const nextMoves = getLegalMoves(board, turn, castlingRights, enPassantTarget);
   if (nextMoves.length === 0) {
     gameOver = true;
     if (isInCheck(board, turn)) {
       const winner = turn === 'w' ? '黑方' : '白方';
       const loser  = turn === 'w' ? '白方' : '黑方';
-      const icon   = turn === 'b' ? '♔' : '♚';  // 胜者的王
+      const icon   = turn === 'b' ? '♔' : '♚';
       document.getElementById('statusText').textContent = `将死！${winner}胜利 🏆`;
       setTimeout(() => showResultModal(icon, `${winner}胜利！`, `将死 ${loser}`), 400);
     } else {
@@ -984,7 +1488,6 @@ function executeMove(move) {
     return;
   }
 
-  // AI 走棋
   if (turn !== playerColor && !gameOver) {
     setTimeout(doAiMove, 150);
   }
@@ -994,7 +1497,6 @@ function doAiMove() {
   if (gameOver) return;
   const overlay = document.getElementById('thinkingOverlay');
   overlay.style.display = 'block';
-  // 先让浏览器渲染"思考中"，再开始计算
   requestAnimationFrame(() => {
     setTimeout(() => {
       const move = getBestMove();
@@ -1006,7 +1508,6 @@ function doAiMove() {
 
 function undoMove() {
   if (historyStack.length < 1) return;
-  // 悔两步（玩家+AI）
   const steps = historyStack.length >= 2 ? 2 : 1;
   for (let i = 0; i < steps; i++) {
     if (!historyStack.length) break;
@@ -1020,6 +1521,9 @@ function undoMove() {
     moveHistory = state.moveHistory;
     lastMove = state.lastMove;
     positionHistory = state.positionHistory;
+    knightCheckCounts = state.knightCheckCounts;
+    bishopCheckCounts = state.bishopCheckCounts;
+    queenCheckCounts = state.queenCheckCounts;
   }
   gameOver = false;
   selected = null;
@@ -1047,16 +1551,15 @@ function buildNotation(move, piece, captured) {
 // ========================= 走子箭头 =========================
 function drawMoveArrow(move, color) {
   const svg = document.getElementById('arrowOverlay');
-  // 清除旧箭头（保留 defs）
   Array.from(svg.children).forEach(el => {
     if (el.tagName !== 'defs') svg.removeChild(el);
   });
   if (!move) return;
 
   const flip = playerColor === 'b';
-  const SQ = 99; // 每格像素
+  // 箭头始终在 viewBox 792x792 坐标系下绘制（SVG 会自动缩放到实际棋盘大小）
+  const SQ = 99;
 
-  // 视觉坐标转换
   const toVis = (row, col) => ({
     vr: flip ? 7 - row : row,
     vc: flip ? 7 - col : col
@@ -1065,16 +1568,14 @@ function drawMoveArrow(move, color) {
   const {vr: fr, vc: fc} = toVis(move.from.row, move.from.col);
   const {vr: tr, vc: tc} = toVis(move.to.row, move.to.col);
 
-  // 格子中心
   const x1 = fc * SQ + SQ / 2;
   const y1 = fr * SQ + SQ / 2;
   const x2 = tc * SQ + SQ / 2;
   const y2 = tr * SQ + SQ / 2;
 
-  // 缩短线段避免被箭头头部遮住
   const dx = x2 - x1, dy = y2 - y1;
   const len = Math.sqrt(dx * dx + dy * dy);
-  const shorten = 18; // px
+  const shorten = 18;
   const sx = x1 + dx / len * 14;
   const sy = y1 + dy / len * 14;
   const ex = x2 - dx / len * shorten;
@@ -1085,7 +1586,6 @@ function drawMoveArrow(move, color) {
   const strokeColor = isWhite ? 'rgba(255,255,255,0.82)' : 'rgba(20,20,20,0.82)';
   const glowColor  = isWhite ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.3)';
 
-  // 发光轮廓（让箭头在各种背景下可见）
   const glow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
   glow.setAttribute('x1', sx); glow.setAttribute('y1', sy);
   glow.setAttribute('x2', ex); glow.setAttribute('y2', ey);
@@ -1094,7 +1594,6 @@ function drawMoveArrow(move, color) {
   glow.setAttribute('stroke-linecap', 'round');
   svg.appendChild(glow);
 
-  // 主箭头线
   const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
   line.setAttribute('x1', sx); line.setAttribute('y1', sy);
   line.setAttribute('x2', ex); line.setAttribute('y2', ey);
@@ -1104,7 +1603,6 @@ function drawMoveArrow(move, color) {
   line.setAttribute('marker-end', `url(#${markerId})`);
   svg.appendChild(line);
 
-  // 起点小圆点
   const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
   dot.setAttribute('cx', x1); dot.setAttribute('cy', y1);
   dot.setAttribute('r', '5');
@@ -1122,7 +1620,6 @@ function renderBoard() {
       .map(m => m.to.row + ',' + m.to.col)
   );
 
-  // 若玩家执黑，翻转棋盘
   const flip = playerColor === 'b';
 
   for (let visualRow = 0; visualRow < 8; visualRow++) {
@@ -1136,21 +1633,17 @@ function renderBoard() {
 
       const key = row + ',' + col;
 
-      // 上次移动高亮
       if (lastMove && (
         (lastMove.from.row === row && lastMove.from.col === col) ||
         (lastMove.to.row === row && lastMove.to.col === col)
       )) sq.classList.add('last-move');
 
-      // 选中高亮
       if (selected && selected.row === row && selected.col === col)
         sq.classList.add('selected');
 
-      // 合法走法提示
       if (legalCaptureTos.has(key)) sq.classList.add('legal-capture');
       else if (legalTos.has(key)) sq.classList.add('legal-move');
 
-      // 将军高亮
       const piece = board[row][col];
       if (piece && getType(piece) === 'K' && isInCheck(board, getColor(piece)))
         sq.classList.add('in-check');
@@ -1160,6 +1653,56 @@ function renderBoard() {
         pieceEl.textContent = PIECES[piece] || '';
         pieceEl.className = getColor(piece) === 'w' ? 'piece-white' : 'piece-black';
         sq.appendChild(pieceEl);
+        // 马的将军次数徽章
+        if (getType(piece) === 'N') {
+          const posKey = row + ',' + col;
+          const checkCnt = knightCheckCounts[posKey] || 0;
+          if (checkCnt > 0 && checkCnt < 3) {
+            const badge = document.createElement('span');
+            badge.className = 'knight-check-badge';
+            badge.textContent = checkCnt;
+            sq.appendChild(badge);
+          }
+        }
+        // 象的将军次数徽章
+        if (getType(piece) === 'B') {
+          const posKey = row + ',' + col;
+          const checkCnt = bishopCheckCounts[posKey] || 0;
+          if (checkCnt > 0 && checkCnt < 3) {
+            const badge = document.createElement('span');
+            badge.className = 'knight-check-badge';
+            badge.style.background = '#2980b9';
+            badge.textContent = checkCnt;
+            sq.appendChild(badge);
+          }
+        }
+        // 后的将军次数徽章（紫色）
+        if (getType(piece) === 'Q') {
+          const posKey = row + ',' + col;
+          const checkCnt = queenCheckCounts[posKey] || 0;
+          if (checkCnt > 0 && checkCnt < 3) {
+            const badge = document.createElement('span');
+            badge.className = 'knight-check-badge';
+            badge.style.background = '#8e44ad';
+            badge.textContent = checkCnt;
+            sq.appendChild(badge);
+          }
+        }
+        // 变形闪光动画（马）
+        if (knightTransformPos && knightTransformPos.row === row && knightTransformPos.col === col) {
+          sq.classList.add('knight-transform');
+          setTimeout(() => { knightTransformPos = null; }, 1100);
+        }
+        // 变形闪光动画（象）
+        if (bishopTransformPos && bishopTransformPos.row === row && bishopTransformPos.col === col) {
+          sq.classList.add('knight-transform');
+          setTimeout(() => { bishopTransformPos = null; }, 1100);
+        }
+        // 变形闪光动画（后）
+        if (queenTransformPos && queenTransformPos.row === row && queenTransformPos.col === col) {
+          sq.classList.add('knight-transform');
+          setTimeout(() => { queenTransformPos = null; }, 1100);
+        }
       }
 
       sq.addEventListener('click', () => squareClick(row, col));
@@ -1187,7 +1730,6 @@ function renderBoard() {
 
   // 走子箭头
   if (lastMove) {
-    // 箭头颜色取决于是谁刚走完（走完后 turn 已切换，所以是 turn 的对手）
     const arrowColor = turn === 'w' ? 'b' : 'w';
     drawMoveArrow(lastMove, arrowColor);
   } else {
@@ -1209,13 +1751,11 @@ function updateUI() {
   document.getElementById('whiteDot').style.opacity = turn === 'w' ? '1' : '0.4';
   document.getElementById('blackDot').style.opacity = turn === 'b' ? '1' : '0.4';
 
-  // 被吃棋子
   document.getElementById('capturedWhite').textContent =
     capturedByWhite.map(p => PIECES[p] || '').join('');
   document.getElementById('capturedBlack').textContent =
     capturedByBlack.map(p => PIECES[p] || '').join('');
 
-  // 走法记录
   const histEl = document.getElementById('moveHistory');
   histEl.innerHTML = '';
   let i = 0;
@@ -1244,6 +1784,15 @@ function updateUI() {
 
 // ========================= 初始化 =========================
 newGame();
+</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?057174cd99c66f46954716f99f3b73a3";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
 </script>
 </body>
 </html>
