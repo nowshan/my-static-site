@@ -96,13 +96,19 @@
     color: #ffffff;
     text-shadow: 0 0 2px #000, 0 0 3px #000, 1px 1px 2px #333;
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
-    /* 空心Unicode符号视觉偏小，统一放大15% */
     transform: scale(1.15);
+  }
+  .piece-white-bishop {
+    color: #ffffff;
+    text-shadow: 0 0 2px #000, 0 0 3px #000, 1px 1px 2px #333;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
+    transform: scale(1.35);
   }
   .piece-black {
     color: #1a1a1a;
     text-shadow: 0 0 1px #888, 1px 1px 1px #aaa;
     filter: drop-shadow(0 1px 2px rgba(255,255,255,0.3));
+    transform: scale(1.4);
   }
   .square.light { background: #f0d9b5; }
   .square.dark  { background: #b58863; }
@@ -588,6 +594,7 @@
         <span id="turnText" style="font-size:11px;color:#aaa">白方回合</span>
         <div class="turn-dot black" id="blackDot"></div>
       </div>
+      <a href="https://aiwen.cc.cd/chess2p.html" target="_blank" style="display:block;margin-top:8px;padding:7px 8px;border-radius:6px;border:1px solid #2a3f6f;background:#0f3460;color:#e0e0e0;font-size:12px;text-align:center;text-decoration:none;cursor:pointer;transition:background 0.15s,border-color 0.15s;">👥 双人对弈</a>
     </div>
 
     <div class="panel-card">
@@ -617,6 +624,64 @@
     </div>
 
     <div class="panel-card">
+      <h3>⚡ 蜕变规则</h3>
+      <div class="transform-rules">
+        <div class="transform-item">
+          <div class="transform-header">
+            <span class="transform-icon">♘</span>
+            <span class="transform-name">马</span>
+            <span class="transform-badge" style="background:#e74c3c">3</span>
+            <span class="transform-expand-hint">▸ 悬停展开</span>
+          </div>
+          <div class="transform-body">
+            <div class="transform-desc">将军 <b>3 次</b>未将死对方 → 蜕变为中国象棋 <b>马</b><br>
+              <span class="transform-detail">走法变为蹩马腿：先直后斜，马腿有子则不可走</span></div>
+            <div class="transform-arrow">♘ → 马 <span class="badge-demo" style="background:#e74c3c">蹩腿</span></div>
+          </div>
+        </div>
+        <div class="transform-item">
+          <div class="transform-header">
+            <span class="transform-icon">♗</span>
+            <span class="transform-name">象</span>
+            <span class="transform-badge" style="background:#2980b9">3</span>
+            <span class="transform-expand-hint">▸ 悬停展开</span>
+          </div>
+          <div class="transform-body">
+            <div class="transform-desc">将军 <b>3 次</b>未将死对方 → 蜕变为中国象棋 <b>象</b><br>
+              <span class="transform-detail">走法变为走田字+塞象眼+不能过河</span></div>
+            <div class="transform-arrow">♗ → 相 <span class="badge-demo" style="background:#2980b9">塞眼</span></div>
+          </div>
+        </div>
+        <div class="transform-item">
+          <div class="transform-header">
+            <span class="transform-icon">♕</span>
+            <span class="transform-name">后</span>
+            <span class="transform-badge" style="background:#8e44ad">3</span>
+            <span class="transform-expand-hint">▸ 悬停展开</span>
+          </div>
+          <div class="transform-body">
+            <div class="transform-desc">将军 <b>3 次</b>未将死对方 → 蜕变为 <b>仅直线走法</b><br>
+              <span class="transform-detail">失去斜线能力，只能像车一样横竖走</span></div>
+            <div class="transform-arrow">♕ → 車 <span class="badge-demo" style="background:#8e44ad">仅直线</span></div>
+          </div>
+        </div>
+        <div class="transform-item transform-item-cannon">
+          <div class="transform-header">
+            <span class="transform-icon">♙</span>
+            <span class="transform-name">兵</span>
+            <span class="transform-badge" style="background:#e67e22">底</span>
+            <span class="transform-expand-hint">▸ 悬停展开</span>
+          </div>
+          <div class="transform-body">
+            <div class="transform-desc">兵触底升变可选 <b>炮</b>，走法同中国象棋炮<br>
+              <span class="transform-detail">直线行走，隔一子跳吃（翻山炮）</span></div>
+            <div class="transform-arrow">♙ → 炮 <span class="badge-demo" style="background:#e67e22">隔吃</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card">
       <h3>🎵 背景音乐</h3>
       <div class="music-panel">
         <button class="music-btn music-btn-play" id="musicPlayBtn" onclick="toggleMusic()">▶</button>
@@ -633,72 +698,6 @@
     <div class="panel-card">
       <h3>走法记录</h3>
       <div class="move-history" id="moveHistory"></div>
-    </div>
-
-    <div class="panel-card">
-      <h3>⚡ 蜕变规则</h3>
-      <div class="transform-rules">
-        <div class="transform-item">
-          <div class="transform-header">
-            <span class="transform-icon">♘</span>
-            <span class="transform-name">马</span>
-            <span class="transform-badge" style="background:#e74c3c">3</span>
-            <span class="transform-expand-hint">▸ 悬停展开</span>
-          </div>
-          <div class="transform-body">
-            <div class="transform-desc">
-              将军 <b>3 次</b>未将死对方 → 蜕变为中国象棋 <b>马</b><br>
-              <span class="transform-detail">走法变为蹩马腿：先直后斜，马腿有子则不可走</span>
-            </div>
-            <div class="transform-arrow">♘ → 马 <span class="badge-demo" style="background:#e74c3c">蹩腿</span></div>
-          </div>
-        </div>
-        <div class="transform-item">
-          <div class="transform-header">
-            <span class="transform-icon">♗</span>
-            <span class="transform-name">象</span>
-            <span class="transform-badge" style="background:#2980b9">3</span>
-            <span class="transform-expand-hint">▸ 悬停展开</span>
-          </div>
-          <div class="transform-body">
-            <div class="transform-desc">
-              将军 <b>3 次</b>未将死对方 → 蜕变为中国象棋 <b>象</b><br>
-              <span class="transform-detail">走法变为走田字+塞象眼+不能过河</span>
-            </div>
-            <div class="transform-arrow">♗ → 相 <span class="badge-demo" style="background:#2980b9">塞眼</span></div>
-          </div>
-        </div>
-        <div class="transform-item">
-          <div class="transform-header">
-            <span class="transform-icon">♕</span>
-            <span class="transform-name">后</span>
-            <span class="transform-badge" style="background:#8e44ad">3</span>
-            <span class="transform-expand-hint">▸ 悬停展开</span>
-          </div>
-          <div class="transform-body">
-            <div class="transform-desc">
-              将军 <b>3 次</b>未将死对方 → 蜕变为 <b>仅直线走法</b><br>
-              <span class="transform-detail">失去斜线能力，只能像车一样横竖走</span>
-            </div>
-            <div class="transform-arrow">♕ → 車 <span class="badge-demo" style="background:#8e44ad">仅直线</span></div>
-          </div>
-        </div>
-        <div class="transform-item transform-item-cannon">
-          <div class="transform-header">
-            <span class="transform-icon">♙</span>
-            <span class="transform-name">兵</span>
-            <span class="transform-badge" style="background:#e67e22">底</span>
-            <span class="transform-expand-hint">▸ 悬停展开</span>
-          </div>
-          <div class="transform-body">
-            <div class="transform-desc">
-              兵触底升变可选 <b>炮</b>，走法同中国象棋炮<br>
-              <span class="transform-detail">直线行走，隔一子跳吃（翻山炮）</span>
-            </div>
-            <div class="transform-arrow">♙ → 炮 <span class="badge-demo" style="background:#e67e22">隔吃</span></div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -737,6 +736,7 @@ const playlist = [
   { title: '以父之名 - 周杰伦', src: 'music/01-以父之名.mp3' },
   { title: 'Ghost Face - 法老', src: 'music/02-ghost-face-法老.mp3' },
   { title: '最强说唱情歌', src: 'music/03-最强说唱情歌.mp4' },
+  { title: '蒲公英的约定 - 周杰伦', src: 'music/04-蒲公英的约定-周杰伦.mp3' },
 ];
 let currentTrack = 0;
 let bgAudio = null;
@@ -805,7 +805,7 @@ function updateBoardSize() {
   // 按比例缩放字号等
   const ratio = sq / 72;
   // 移动端棋子放大：小屏时棋子占格子比例更高，视觉更饱满
-  const fontRatio = sq <= 50 ? 0.92 : (sq <= 65 ? 0.82 : 0.64);
+  const fontRatio = sq <= 50 ? 0.58 : (sq <= 65 ? 0.54 : 0.46);
   document.documentElement.style.setProperty('--sq-font', Math.round(sq * fontRatio) + 'px');
   document.documentElement.style.setProperty('--sq-dot', Math.round(26 * ratio) + 'px');
   document.documentElement.style.setProperty('--sq-border', Math.max(3, Math.round(5 * ratio)) + 'px');
@@ -1784,7 +1784,15 @@ function renderBoard() {
       if (piece) {
         const pieceEl = document.createElement('span');
         pieceEl.textContent = PIECES[piece] || '';
-        pieceEl.className = getColor(piece) === 'w' ? 'piece-white' : 'piece-black';
+        const pc = getColor(piece);
+        const pt = getType(piece);
+        if (pc === 'w' && (pt === 'B' || pt === 'E')) {
+          pieceEl.className = 'piece-white-bishop';
+        } else if (pc === 'w') {
+          pieceEl.className = 'piece-white';
+        } else {
+          pieceEl.className = 'piece-black';
+        }
         sq.appendChild(pieceEl);
         // 马的将军次数徽章
         if (getType(piece) === 'N') {

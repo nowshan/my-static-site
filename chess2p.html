@@ -99,10 +99,17 @@
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
     transform: scale(1.15);
   }
+  .piece-white-bishop {
+    color: #ffffff;
+    text-shadow: 0 0 2px #000, 0 0 3px #000, 1px 1px 2px #333;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
+    transform: scale(1.35);
+  }
   .piece-black {
     color: #1a1a1a;
     text-shadow: 0 0 1px #888, 1px 1px 1px #aaa;
     filter: drop-shadow(0 1px 2px rgba(255,255,255,0.3));
+    transform: scale(1.4);
   }
   .square.light { background: #f0d9b5; }
   .square.dark  { background: #b58863; }
@@ -526,6 +533,7 @@
         <span id="turnText" style="font-size:11px;color:#aaa">--</span>
         <div class="turn-dot black" id="blackDot"></div>
       </div>
+      <a href="https://aiwen.cc.cd/chess.html" target="_blank" style="display:block;margin-top:8px;padding:7px 8px;border-radius:6px;border:1px solid #2a3f6f;background:#0f3460;color:#e0e0e0;font-size:12px;text-align:center;text-decoration:none;cursor:pointer;transition:background 0.15s,border-color 0.15s;">🎮 人机对弈</a>
     </div>
 
     <div class="panel-card">
@@ -554,25 +562,6 @@
       </div>
       <button class="primary" id="btnNewGame" onclick="newGame()" disabled>新游戏</button>
       <button onclick="undoMove()" id="btnUndo" disabled>悔棋</button>
-    </div>
-
-    <div class="panel-card">
-      <h3>🎵 背景音乐</h3>
-      <div class="music-panel">
-        <button class="music-btn music-btn-play" id="musicPlayBtn" onclick="toggleMusic()">▶</button>
-        <button class="music-btn music-btn-next" onclick="nextTrack()">⏭</button>
-        <div class="music-info">
-          <div class="music-title" id="musicTitle">点击播放</div>
-          <div class="music-progress-wrap" id="musicProgressWrap" onclick="seekMusic(event)">
-            <div class="music-progress-bar" id="musicProgressBar"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel-card">
-      <h3>走法记录</h3>
-      <div class="move-history" id="moveHistory"></div>
     </div>
 
     <div class="panel-card">
@@ -632,6 +621,25 @@
         </div>
       </div>
     </div>
+
+    <div class="panel-card">
+      <h3>🎵 背景音乐</h3>
+      <div class="music-panel">
+        <button class="music-btn music-btn-play" id="musicPlayBtn" onclick="toggleMusic()">▶</button>
+        <button class="music-btn music-btn-next" onclick="nextTrack()">⏭</button>
+        <div class="music-info">
+          <div class="music-title" id="musicTitle">点击播放</div>
+          <div class="music-progress-wrap" id="musicProgressWrap" onclick="seekMusic(event)">
+            <div class="music-progress-bar" id="musicProgressBar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <h3>走法记录</h3>
+      <div class="move-history" id="moveHistory"></div>
+    </div>
   </div>
 </div>
 
@@ -669,6 +677,7 @@ const playlist = [
   { title: '以父之名 - 周杰伦', src: 'music/01-以父之名.mp3' },
   { title: 'Ghost Face - 法老', src: 'music/02-ghost-face-法老.mp3' },
   { title: '最强说唱情歌', src: 'music/03-最强说唱情歌.mp4' },
+  { title: '蒲公英的约定 - 周杰伦', src: 'music/04-蒲公英的约定-周杰伦.mp3' },
 ];
 let currentTrack = 0;
 let bgAudio = null;
@@ -862,7 +871,7 @@ function updateBoardSize() {
   const sq = Math.max(36, Math.min(99, Math.floor(available / 8)));
   document.documentElement.style.setProperty('--sq', sq + 'px');
   const ratio = sq / 72;
-  const fontRatio = sq <= 50 ? 0.92 : (sq <= 65 ? 0.82 : 0.64);
+  const fontRatio = sq <= 50 ? 0.58 : (sq <= 65 ? 0.54 : 0.46);
   document.documentElement.style.setProperty('--sq-font', Math.round(sq * fontRatio) + 'px');
   document.documentElement.style.setProperty('--sq-dot', Math.round(26 * ratio) + 'px');
   document.documentElement.style.setProperty('--sq-border', Math.max(3, Math.round(5 * ratio)) + 'px');
@@ -1534,7 +1543,15 @@ function renderBoard() {
       if (piece) {
         const pieceEl = document.createElement('span');
         pieceEl.textContent = PIECES[piece] || '';
-        pieceEl.className = getColor(piece) === 'w' ? 'piece-white' : 'piece-black';
+        const pc = getColor(piece);
+        const pt = getType(piece);
+        if (pc === 'w' && (pt === 'B' || pt === 'E')) {
+          pieceEl.className = 'piece-white-bishop';
+        } else if (pc === 'w') {
+          pieceEl.className = 'piece-white';
+        } else {
+          pieceEl.className = 'piece-black';
+        }
         sq.appendChild(pieceEl);
         if (getType(piece) === 'N') {
           const posKey = row + ',' + col;
