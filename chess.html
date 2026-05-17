@@ -482,6 +482,60 @@
     vertical-align: middle;
   }
 
+  /* ========== 音乐播放器 ========== */
+  .music-panel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .music-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
+  }
+  .music-btn:hover { transform: scale(1.1); }
+  .music-btn:active { transform: scale(0.95); }
+  .music-btn-play { background: #c9a96e; color: #1a1a2e; }
+  .music-btn-next { background: rgba(255,255,255,0.1); color: #c9a96e; }
+  .music-btn-next:hover { background: rgba(255,255,255,0.2); }
+  .music-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .music-title {
+    font-size: 11px;
+    color: #ccc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .music-progress-wrap {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+  }
+  .music-progress-bar {
+    height: 100%;
+    background: #c9a96e;
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s linear;
+  }
+
   /* ========== 手机适配 ========== */
   @media (max-width: 960px) {
     .game-container { flex-direction: column; align-items: center; }
@@ -560,6 +614,20 @@
       </select>
       <button class="primary" onclick="newGame()">新游戏</button>
       <button onclick="undoMove()">悔棋</button>
+    </div>
+
+    <div class="panel-card">
+      <h3>🎵 背景音乐</h3>
+      <div class="music-panel">
+        <button class="music-btn music-btn-play" id="musicPlayBtn" onclick="toggleMusic()">▶</button>
+        <button class="music-btn music-btn-next" onclick="nextTrack()">⏭</button>
+        <div class="music-info">
+          <div class="music-title" id="musicTitle">点击播放</div>
+          <div class="music-progress-wrap" id="musicProgressWrap" onclick="seekMusic(event)">
+            <div class="music-progress-bar" id="musicProgressBar"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="panel-card">
@@ -662,6 +730,67 @@ function showToast(msg) {
   el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ========================= 背景音乐 =========================
+const playlist = [
+  { title: '以父之名 - 周杰伦', src: 'music/01-以父之名.mp3' },
+  { title: 'Ghost Face - 法老', src: 'music/02-ghost-face-法老.mp3' },
+  { title: '最强说唱情歌', src: 'music/03-最强说唱情歌.mp4' },
+];
+let currentTrack = 0;
+let bgAudio = null;
+let musicPlaying = false;
+
+function initAudio() {
+  if (bgAudio) return;
+  bgAudio = new Audio();
+  bgAudio.volume = 0.6;
+  bgAudio.addEventListener('ended', () => nextTrack());
+  bgAudio.addEventListener('timeupdate', () => {
+    if (!bgAudio.duration) return;
+    const pct = (bgAudio.currentTime / bgAudio.duration) * 100;
+    document.getElementById('musicProgressBar').style.width = pct + '%';
+  });
+}
+
+function loadTrack(idx) {
+  currentTrack = ((idx % playlist.length) + playlist.length) % playlist.length;
+  const track = playlist[currentTrack];
+  initAudio();
+  bgAudio.src = track.src;
+  document.getElementById('musicTitle').textContent = track.title;
+  document.getElementById('musicProgressBar').style.width = '0%';
+}
+
+function toggleMusic() {
+  initAudio();
+  if (musicPlaying) {
+    bgAudio.pause();
+    musicPlaying = false;
+    document.getElementById('musicPlayBtn').textContent = '▶';
+  } else {
+    if (!bgAudio.src || bgAudio.src === '') loadTrack(currentTrack);
+    bgAudio.play().catch(() => {});
+    musicPlaying = true;
+    document.getElementById('musicPlayBtn').textContent = '⏸';
+  }
+}
+
+function nextTrack() {
+  const wasPlaying = musicPlaying;
+  loadTrack(currentTrack + 1);
+  if (wasPlaying) {
+    bgAudio.play().catch(() => {});
+  }
+}
+
+function seekMusic(e) {
+  if (!bgAudio || !bgAudio.duration) return;
+  const wrap = document.getElementById('musicProgressWrap');
+  const rect = wrap.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  bgAudio.currentTime = pct * bgAudio.duration;
 }
 
 // ========================= 自适应尺寸 =========================
