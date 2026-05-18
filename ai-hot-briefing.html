@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 每日精选简报 · 2026年5月18日</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #334155;
+            --model-color: #f472b6;
+            --product-color: #34d399;
+            --industry-color: #fbbf24;
+            --paper-color: #60a5fa;
+            --tips-color: #a78bfa;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: var(--radius);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .date {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .header .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+        }
+
+        .stat-item strong {
+            font-size: 1.5rem;
+            display: block;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .section-title h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .section-count {
+            margin-left: auto;
+            background: var(--bg-card);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Category Colors */
+        .model .section-icon { background: var(--model-color); }
+        .model .section-title h2 { color: var(--model-color); }
+        .model .card .category-tag { background: var(--model-color); }
+
+        .product .section-icon { background: var(--product-color); }
+        .product .section-title h2 { color: var(--product-color); }
+        .product .card .category-tag { background: var(--product-color); }
+
+        .industry .section-icon { background: var(--industry-color); }
+        .industry .section-title h2 { color: var(--industry-color); }
+        .industry .card .category-tag { background: var(--industry-color); }
+
+        .paper .section-icon { background: var(--paper-color); }
+        .paper .section-title h2 { color: var(--paper-color); }
+        .paper .card .category-tag { background: var(--paper-color); }
+
+        .tips .section-icon { background: var(--tips-color); }
+        .tips .section-title h2 { color: var(--tips-color); }
+        .tips .card .category-tag { background: var(--tips-color); }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .card-title a {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .card-title a:hover {
+            color: var(--primary);
+        }
+
+        .category-tag {
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: nowrap;
+            color: #0f172a;
+        }
+
+        .card-summary {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .card-source {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .card-time {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .header .stats {
+                gap: 1rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                flex-wrap: wrap;
+            }
+
+            .section-count {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .section:nth-child(2) { animation-delay: 0.1s; }
+        .section:nth-child(3) { animation-delay: 0.2s; }
+        .section:nth-child(4) { animation-delay: 0.3s; }
+        .section:nth-child(5) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🤖 AI 每日精选简报</h1>
+                <div class="date">📅 2026年5月18日 · 北京时间</div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <strong>18</strong>
+                        条精选资讯
+                    </div>
+                    <div class="stat-item">
+                        <strong>5</strong>
+                        大分类
+                    </div>
+                    <div class="stat-item">
+                        <strong>实时</strong>
+                        更新
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 模型发布 -->
+        <section class="section model">
+            <div class="section-title">
+                <div class="section-icon">🚀</div>
+                <h2>模型发布</h2>
+                <span class="section-count">5 条</span>
+            </div>
+            <div class="cards-grid">
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://www.36kr.com/p/3797049063464192" target="_blank">OpenAI 发布 GPT-5.5 Instant 模型，奥特曼邀请马斯克参加 AI 派对</a></h3>
+                        <span class="category-tag">旗舰</span>
+                    </div>
+                    <p class="card-summary">OpenAI 在 5 月初发布 GPT-5.5 Instant 模型升级，奥特曼透露模型参与了 GPT-5.5 上线派对的策划。模型主动提出派对需求清单，包括定在 5 月 5 日举行、希望演讲环节越短越好等要求，展现了 AI 与人类互动的有趣场景。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 36氪</span>
+                        <span class="card-time">⏰ 今天</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://abmedia.io/chatgpt-claude-gemini-2026-complete-comparison-version-differences" target="_blank">Claude Opus 4.7 正式发布，Anthropic 持续进化</a></h3>
+                        <span class="category-tag">旗舰</span>
+                    </div>
+                    <p class="card-summary">Anthropic 于 4 月 16 日推出 Claude Opus 4.7，作为 Claude 4.6 家族的升级版本。新版本在写作、编程、逻辑推理三大核心能力上进一步提升，与 GPT-5.5 和 Gemini 2.5 Pro 形成三足鼎立的竞争格局。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 ABMedia</span>
+                        <span class="card-time">⏰ 2天前</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://abmedia.io/chatgpt-claude-gemini-2026-complete-comparison-version-differences" target="_blank">Google Gemini 2.5 Pro / Flash 双版本同步更新</a></h3>
+                        <span class="category-tag">旗舰</span>
+                    </div>
+                    <p class="card-summary">Google 继续保持 Gemini 双旗舰策略，Gemini 2.5 Pro 主打旗舰性能，Flash 版本则侧重快速响应。2026 年三大 AI 厂商均采用「旗舰/中端」分层产品线策略，满足不同用户群体需求。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 ABMedia</span>
+                        <span class="card-time">⏰ 2天前</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://www.51cto.com/article/843364.html" target="_blank">OpenAI Codex 移动端正式支持，AI 编程进入移动时代</a></h3>
+                        <span class="category-tag">工具</span>
+                    </div>
+                    <p class="card-summary">OpenAI 发布 Codex 移动端支持，标志着 AI 编程工具从桌面走向移动端。用户现在可以在手机和平板上使用 Codex 进行代码编写、调试和解释，实现随时随地的 AI 辅助编程体验。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 51CTO</span>
+                        <span class="card-time">⏰ 3天前</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://www.51cto.com/article/843364.html" target="_blank">OpenAI 成立 DeployCo 企业级部署公司</a></h3>
+                        <span class="category-tag">企业</span>
+                    </div>
+                    <p class="card-summary">OpenAI 宣布成立新公司 DeployCo，专注于企业级 AI 模型部署服务。这标志着 AI 编程工具正从桌面走向移动端，从个人用户拓展到企业市场，提供定制化的私有化部署解决方案。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 51CTO</span>
+                        <span class="card-time">⏰ 3天前</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 产品更新 -->
+        <section class="section product">
+            <div class="section-title">
+                <div class="section-icon">✨</div>
+                <h2>产品更新</h2>
+                <span class="section-count">2 条</span>
+            </div>
+            <div class="cards-grid">
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://www.51cto.com/article/843364.html" target="_blank">OpenAI 两周三连发，密集产品更新期来临</a></h3>
+                        <span class="category-tag">热榜</span>
+                    </div>
+                    <p class="card-summary">5 月上半月，AI 行业迎来一波密集更新。OpenAI 在两周内连发三款重要产品：GPT-5.5 Instant 模型升级、Codex 移动端支持、以及企业级部署公司 DeployCo。密集的产品更新节奏显示了 AI 行业的激烈竞争态势。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 51CTO</span>
+                        <span class="card-time">⏰ 3天前</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://opinion.caixin.com/2026-05-08/102441787.html" target="_blank">大模型 2.0 阶段拉开大幕，Anthropic ARR 突破 440 亿美元</a></h3>
+                        <span class="category-tag">商业</span>
+                    </div>
+                    <p class="card-summary">Anthropic 的年化收入（ARR）从 2025 年底的 90 亿美元飙升至 440 亿美元，仅用 4 个月实现近 5 倍增长。Anthropic ARR 首次超越 OpenAI，标志着大模型 2.0 阶段的正式开启，AI 商业化进入快车道。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 财新</span>
+                        <span class="card-time">⏰ 10天前</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 行业动态 -->
+        <section class="section industry">
+            <div class="section-title">
+                <div class="section-icon">📊</div>
+                <h2>行业动态</h2>
+                <span class="section-count">5 条</span>
+            </div>
+            <div class="cards-grid">
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://finance.sina.com.cn/tech/roll/2026-05-15/doc-inhxyimq3306790.shtml" target="_blank">Anthropic 完成 300 亿美元融资，估值超 9000 亿美元超越 OpenAI</a></h3>
+                        <span class="category-tag">融资</span>
+                    </div>
+                    <p class="card-summary">5 月 15 日，Anthropic 已就高达 300 亿美元的新一轮融资协议达成最终条款。本轮融资由红杉资本联合 Dragoneer、Greenoaks、Altimeter Capital 共同领投，使 Anthropic 的投后估值飙升至约 9000 亿美元，正式超越 OpenAI 约 8520 亿美元的估值。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 财联社</span>
+                        <span class="card-time">⏰ 3天前</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://www.36kr.com/p/3799097984080899" target="_blank">估值突破 1.2 万亿美元！Anthropic 成为全球 AI 新王</a></h3>
+                        <span class="category-tag">头条</span>
+                    </div>
+                    <p class="card-summary">Anthropic 估值正式冲爆 1.2 万亿美元，手握马斯克的 22 万张顶级 GPU，以及谷歌 2000 亿美元的长约。这场万亿美金级别的史诗级豪赌，见证了硅谷商业史上最疯狂的「王位更替」，Anthropic 正式加冕全球 AI 新王。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 36氪</span>
+                        <span class="card-time">⏰ 3天前</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://finance.sina.com.cn/wm/2026-05-13/doc-inhxufvi4466854.shtml" target="_blank">国家网信办等三部门联合印发《智能体规范应用与创新发展实施意见》</a></h3>
+                        <span class="category-tag">政策</span>
+                    </div>
+                    <p class="card-summary">5 月 8 日，国家网信办、国家发展改革委、工业和信息化部联合印发《智能体规范应用与创新发展实施意见》，标志着 AI 智能体正式进入规范化管理轨道。意见设定目标：到 2027 年，新一代智能终端、智能体等应用普及率将超过 70%。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 新浪财经</span>
+                        <span class="card-time">⏰ 5天前</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://finance.sina.com.cn/roll/2026-05-11/doc-inhxppim0514845.shtml" target="_blank">广州发布人工智能产业 2026 年工作要点，打造垂类模型之都</a></h3>
+                        <span class="category-tag">地方</span>
+                    </div>
+                    <p class="card-summary">5 月 11 日，广州市发布《人工智能产业 2026 年工作要点》，从八个方面提出 32 条具体举措。目标打造 2 个人工智能行业应用共性技术服务平台，培育 40 个具备市场竞争力和行业推广潜力的垂直细分大模型，加快将广州打造成为垂类模型之都、人工智能应用示范高地。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 新浪财经</span>
+                        <span class="card-time">⏰ 7天前</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://www.ithome.com/0/950/766.htm" target="_blank">GEO 市场规模突破 45 亿元，生成式引擎优化成为企业增长新引擎</a></h3>
+                        <span class="category-tag">营销</span>
+                    </div>
+                    <p class="card-summary">根据 IDC 最新报告，2026 年中国 GEO（生成式引擎优化）市场规模已突破 45 亿元人民币，近三年复合增长率高达 42 倍。超过 72% 的规模级企业已将 GEO 纳入数字营销战略，生成式 AI 正彻底重构全球数字营销版图。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 IT之家</span>
+                        <span class="card-time">⏰ 5天前</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 论文研究 -->
+        <section class="section paper">
+            <div class="section-title">
+                <div class="section-icon">📚</div>
+                <h2>论文研究</h2>
+                <span class="section-count">4 条</span>
+            </div>
+            <div class="cards-grid">
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://huggingface.ac.cn/papers/2605.13301" target="_blank">通过简单统一的缩放实现金牌级奥数推理</a></h3>
+                        <span class="category-tag">推理</span>
+                    </div>
+                    <p class="card-summary">本研究探索了如何通过简单统一的缩放方法实现金牌级别的奥数推理能力。论文提出的方法在多个数学推理基准测试上取得了显著突破，为提升大语言模型的数学问题解决能力提供了新思路。热度：138</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 Hugging Face</span>
+                        <span class="card-time">⏰ 今天</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://huggingface.ac.cn/papers/2605.15141" target="_blank">Causal Forcing++：实时交互式视频生成的扩展性少步自回归扩散蒸馏</a></h3>
+                        <span class="category-tag">视频</span>
+                    </div>
+                    <p class="card-summary">论文提出 Causal Forcing++ 方法，实现实时交互式视频生成的可扩展少步自回归扩散蒸馏技术。该技术在保持视频质量的同时大幅提升生成速度，为实时 AI 视频应用奠定基础。热度：82</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 Hugging Face</span>
+                        <span class="card-time">⏰ 今天</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://huggingface.ac.cn/papers/2605.15155" target="_blank">自蒸馏智能体强化学习</a></h3>
+                        <span class="category-tag">Agent</span>
+                    </div>
+                    <p class="card-summary">研究提出自蒸馏智能体强化学习方法，通过智能体自身的知识蒸馏提升强化学习效果。该方法在多个基准测试上展现了优越性能，为构建更智能的 AI Agent 提供了新范式。热度：78</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 Hugging Face</span>
+                        <span class="card-time">⏰ 今天</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://huggingface.ac.cn/papers/2605.14892" target="_blank">超越个体智能：基于LLM的多智能体系统协作、失败归因与自我进化综述</a></h3>
+                        <span class="category-tag">综述</span>
+                    </div>
+                    <p class="card-summary">综述论文系统梳理了基于大语言模型的多智能体系统研究进展，涵盖协作机制、失败归因和自我进化三大核心问题。为理解和发展更高级的多智能体 AI 系统提供了全面的学术参考。热度：43</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 Hugging Face</span>
+                        <span class="card-time">⏰ 今天</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 技巧与观点 -->
+        <section class="section tips">
+            <div class="section-title">
+                <div class="section-icon">💡</div>
+                <h2>技巧与观点</h2>
+                <span class="section-count">2 条</span>
+            </div>
+            <div class="cards-grid">
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://laodad.com/tools/6189.html" target="_blank">Prompt Engineering 完全指南 2026：让 AI 输出质量翻倍的 10 个技巧</a></h3>
+                        <span class="category-tag">技巧</span>
+                    </div>
+                    <p class="card-summary">2026 年最实用的 Prompt Engineering 技巧总结，从基础到进阶配合大量实际例子。涵盖角色设定、思维链、少样本学习等高级技术，帮助你快速提升与 AI 对话的效率和质量。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 老达笔记</span>
+                        <span class="card-time">⏰ 1个月前</span>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><a href="https://www.gemini-cnblog.com/chatgpt/guides/chatgpt-prompt-mastery-guide-2026.html" target="_blank">ChatGPT 提示词工程完全指南：10 个技巧让 AI 输出质量翻倍</a></h3>
+                        <span class="category-tag">教程</span>
+                    </div>
+                    <p class="card-summary">深度解析 ChatGPT 提示词的编写技巧与最佳实践，涵盖角色设定、思维链、少样本学习等高级技术。配合 50+ 实战案例，帮助你成为 AI 提示词工程专家，让 ChatGPT 输出质量提升数倍。</p>
+                    <div class="card-footer">
+                        <span class="card-source">📰 Gemini 中文博客</span>
+                        <span class="card-time">⏰ 3个月前</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>📡 数据来源：AI 铺子 · 36氪 · 财新 · 新浪财经 · IT之家 · Hugging Face · 必应AI日报</p>
+            <p>🤖 AI 每日精选简报 · <a href="https://www.aipuzi.cn/ai-news" target="_blank">AI铺子</a> 整理生成</p>
+            <p>⚡ 更新时间：北京时间 2026-05-18 08:00</p>
+        </footer>
+    </div>
+</body>
+</html>
