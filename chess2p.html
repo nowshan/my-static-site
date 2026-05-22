@@ -11,7 +11,6 @@
 <style>
   :root {
     --sq: 72px;
-    --sq-font: 46px;
     --sq-dot: 26px;
     --sq-border: 5px;
     --sq-coord: 11px;
@@ -69,7 +68,7 @@
     width: calc(var(--sq) * 8);
     height: calc(var(--sq) * 8);
     pointer-events: none;
-    z-index: 5;
+    z-index: 15;
   }
   .board {
     display: grid;
@@ -77,39 +76,82 @@
     grid-template-rows: repeat(8, var(--sq));
     border: 3px solid #c9a96e;
     border-radius: 4px;
-    overflow: hidden;
     box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   }
   .square {
     width: var(--sq);
     height: var(--sq);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--sq-font);
     cursor: pointer;
     position: relative;
     transition: background 0.1s;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
-  .piece-white {
-    color: #ffffff;
-    text-shadow: 0 0 2px #000, 0 0 3px #000, 1px 1px 2px #333;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
-    transform: scale(1.15);
+  /* ====== 棋子独立图层（滑行动画核心） ====== */
+  .pieces-layer {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: calc(var(--sq) * 8);
+    height: calc(var(--sq) * 8);
+    pointer-events: none;
+    z-index: 10;
+    overflow: hidden;
   }
-  .piece-white-bishop {
-    color: #ffffff;
-    text-shadow: 0 0 2px #000, 0 0 3px #000, 1px 1px 2px #333;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
-    transform: scale(1.35);
+  .piece-badge {
+    position: absolute;
+    width: calc(var(--sq) * 0.86);
+    height: calc(var(--sq) * 0.86);
+    margin: calc(var(--sq) * 0.07);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    user-select: none;
+    left: 0; top: 0;
+    transition: transform 2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.5s ease-out;
+    z-index: 2;
   }
-  .piece-black {
-    color: #1a1a1a;
-    text-shadow: 0 0 1px #888, 1px 1px 1px #aaa;
-    filter: drop-shadow(0 1px 2px rgba(255,255,255,0.3));
-    transform: scale(1.4);
+  .piece-badge.white-piece {
+    background: linear-gradient(145deg, #ffffff 0%, #e8e8e8 60%, #d0d0d0 100%);
+    color: #2c3e50;
+    border: 2px solid #f0f0f0;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.35), inset 0 1px 3px rgba(255,255,255,0.8);
+  }
+  .piece-badge.black-piece {
+    background: linear-gradient(145deg, #4a5568 0%, #2d3748 60%, #1a202c 100%);
+    color: #e2e8f0;
+    border: 2px solid #4a5568;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.5), inset 0 1px 3px rgba(255,255,255,0.15);
+  }
+  .piece-symbol {
+    font-size: calc(var(--sq) * 0.42);
+    line-height: 1;
+  }
+  .piece-text {
+    font-size: calc(var(--sq) * 0.18);
+    margin-top: -1px;
+    opacity: 0.75;
+    font-weight: 600;
+  }
+  .piece-check-badge {
+    position: absolute;
+    top: -2px; right: -2px;
+    background: #e74c3c;
+    color: #fff;
+    font-size: calc(var(--sq) * 0.14);
+    font-weight: 700;
+    width: calc(var(--sq) * 0.22);
+    height: calc(var(--sq) * 0.22);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 0 4px rgba(0,0,0,0.6);
+    line-height: 1;
   }
   .square.light { background: #f0d9b5; }
   .square.dark  { background: #b58863; }
@@ -117,6 +159,8 @@
   .square.legal-move::after {
     content: '';
     position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
     width: var(--sq-dot); height: var(--sq-dot);
     border-radius: 50%;
     background: rgba(0,0,0,0.18);
@@ -133,23 +177,6 @@
   .square.last-move { background: #cdd48f !important; }
   .square.last-move.dark { background: #aaa23a !important; }
   .square.in-check { background: #e87474 !important; }
-  .knight-check-badge {
-    position: absolute;
-    top: 1px; right: 1px;
-    background: #e74c3c;
-    color: #fff;
-    font-size: calc(var(--sq) * 0.14);
-    font-weight: 700;
-    width: calc(var(--sq) * 0.24);
-    height: calc(var(--sq) * 0.24);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    z-index: 3;
-    box-shadow: 0 0 3px rgba(0,0,0,0.5);
-  }
   @keyframes transformFlash {
     0%   { box-shadow: inset 0 0 0 0 rgba(231,76,60,0); }
     30%  { box-shadow: inset 0 0 30px 10px rgba(231,76,60,0.7); }
@@ -294,7 +321,8 @@
     border-radius: 20px;
     display: none;
     white-space: nowrap;
-    z-index: 10;
+    z-index: 20;
+    pointer-events: none;
   }
   .promotion-modal {
     display: none;
@@ -506,6 +534,7 @@
       <div>
         <div style="position:relative;display:inline-block">
           <div class="board" id="board"></div>
+          <div class="pieces-layer" id="piecesLayer"></div>
           <svg id="arrowOverlay" viewBox="0 0 792 792" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <marker id="arrowHeadW" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
@@ -588,8 +617,8 @@
             <span class="transform-expand-hint">▸ 悬停展开</span>
           </div>
           <div class="transform-body">
-            <div class="transform-desc">将军 <b>3 次</b>未将死对方 → 蜕变为中国象棋 <b>象</b><br>
-              <span class="transform-detail">走法变为走田字+塞象眼+不能过河</span></div>
+            <div class="transform-desc">将军 <b>3 次</b>未将死对方 → 蜕变为中国象棋 <b>相</b><br>
+              <span class="transform-detail">走法变为走田字+塞象眼，可过河</span></div>
             <div class="transform-arrow">♗ → 相 <span class="badge-demo" style="background:#2980b9">塞眼</span></div>
           </div>
         </div>
@@ -873,8 +902,6 @@ function updateBoardSize() {
   const sq = Math.max(36, Math.min(99, Math.floor(available / 8)));
   document.documentElement.style.setProperty('--sq', sq + 'px');
   const ratio = sq / 72;
-  const fontRatio = sq <= 50 ? 0.58 : (sq <= 65 ? 0.54 : 0.46);
-  document.documentElement.style.setProperty('--sq-font', Math.round(sq * fontRatio) + 'px');
   document.documentElement.style.setProperty('--sq-dot', Math.round(26 * ratio) + 'px');
   document.documentElement.style.setProperty('--sq-border', Math.max(3, Math.round(5 * ratio)) + 'px');
   document.documentElement.style.setProperty('--sq-coord', Math.max(9, Math.round(11 * ratio)) + 'px');
@@ -887,7 +914,7 @@ const PIECES = {
   wK:'♔', wQ:'♕', wR:'♖', wB:'♗', wN:'♘', wP:'♙', wC:'炮', wH:'马', wE:'相', wT:'車',
   bK:'♚', bQ:'♛', bR:'♜', bB:'♝', bN:'♞', bP:'♟', bC:'砲', bH:'馬', bE:'象', bT:'車'
 };
-const PIECE_NAMES = { Q:'后', R:'车', B:'象', N:'马', C:'炮', H:'马(蹩腿)', E:'象(塞眼)', T:'后(仅直线)' };
+const PIECE_NAMES = { Q:'后', R:'车', B:'象', N:'马', C:'炮', H:'马(蹩腿)', E:'相(塞眼)', T:'后(仅直线)' };
 
 // ========================= 游戏状态 =========================
 let board = [];
@@ -902,6 +929,10 @@ let lastMove = null;
 let castlingRights = { wK: true, wQ: true, bK: true, bQ: true };
 let enPassantTarget = null;
 let gameOver = false;
+// ====== 棋子DOM持久化追踪 ======
+let activePieceDOMs = [];
+let pieceIdCounter = 0;
+let isAnimating = false;
 let pendingPromotion = null;
 let positionHistory = {};
 let knightCheckCounts = {};
@@ -1040,13 +1071,12 @@ function getPseudoLegalMoves(b, row, col, enPassant, castling) {
       break;
     case 'B': slide([1,1,-1,-1],[1,-1,1,-1]); break;
     case 'E':
-      const homeMin = color === 'w' ? 4 : 0;
-      const homeMax = color === 'w' ? 7 : 3;
+      // 中国象棋相：走田字（斜走2格）+ 塞象眼，可过河
       const elephantDirs = [[-2,-2],[-2,2],[2,-2],[2,2]];
       for (const [dr, dc] of elephantDirs) {
         const nr = row + dr, nc = col + dc;
         if (nr < 0 || nr >= 8 || nc < 0 || nc >= 8) continue;
-        if (nr < homeMin || nr > homeMax) continue;
+        // 塞象眼检查：中间斜一格位置有子则不能走
         const eyeR = row + dr / 2, eyeC = col + dc / 2;
         if (b[eyeR][eyeC]) continue;
         const target = b[nr][nc];
@@ -1168,11 +1198,18 @@ function newGame() {
   positionHistory[initHash] = 1;
   renderBoard();
   updateUI();
+  // 根据当前回合和自己的颜色设置等待提示
+  if (isConnected && myColor && turn !== myColor) {
+    document.getElementById('waitingOverlay').style.display = 'block';
+  } else {
+    document.getElementById('waitingOverlay').style.display = 'none';
+  }
 }
 
 function squareClick(row, col) {
   if (gameOver) return;
   if (!isConnected) return;
+  if (isAnimating) return;  // 滑行动画中拒绝点击
   // 只能走自己颜色的棋子
   if (turn !== myColor) return;
 
@@ -1358,7 +1395,7 @@ function executeMove(move, fromPeer) {
         delete bishopCheckCounts[newKey];
         bishopTransformPos = { row: move.to.row, col: move.to.col };
         const colorName = color === 'w' ? '白方' : '黑方';
-        showToast(`⚡ ${colorName}象将军3次未将死，变为中国象棋象（塞眼+不过河）！`);
+        showToast(`⚡ ${colorName}象将军3次未将死，变为中国象棋相（塞眼+可过河）！`);
       }
     }
   }
@@ -1394,31 +1431,32 @@ function executeMove(move, fromPeer) {
     return;
   }
 
-  renderBoard();
-  updateUI();
-
-  const nextMoves = getLegalMoves(board, turn, castlingRights, enPassantTarget);
-  if (nextMoves.length === 0) {
-    gameOver = true;
-    if (isInCheck(board, turn)) {
-      const winner = turn === 'w' ? '黑方' : '白方';
-      const loser  = turn === 'w' ? '白方' : '黑方';
-      const icon   = turn === 'b' ? '♔' : '♚';
-      document.getElementById('statusText').textContent = `将死！${winner}胜利 🏆`;
-      setTimeout(() => showResultModal(icon, `${winner}胜利！`, `将死 ${loser}`), 400);
-    } else {
-      document.getElementById('statusText').textContent = '逼和！平局 🤝';
-      setTimeout(() => showResultModal('🤝', '和棋', '无子可走，逼和'), 400);
+  // 启动3秒滑行动画
+  executeAnimatedMove2P(move, () => {
+    renderBoard();
+    updateUI();
+    const nextMoves = getLegalMoves(board, turn, castlingRights, enPassantTarget);
+    if (nextMoves.length === 0) {
+      gameOver = true;
+      if (isInCheck(board, turn)) {
+        const winner = turn === 'w' ? '黑方' : '白方';
+        const loser  = turn === 'w' ? '白方' : '黑方';
+        const icon   = turn === 'b' ? '♔' : '♚';
+        document.getElementById('statusText').textContent = `将死！${winner}胜利 🏆`;
+        setTimeout(() => showResultModal(icon, `${winner}胜利！`, `将死 ${loser}`), 400);
+      } else {
+        document.getElementById('statusText').textContent = '逼和！平局 🤝';
+        setTimeout(() => showResultModal('🤝', '和棋', '无子可走，逼和'), 400);
+      }
+      return;
     }
-    return;
-  }
-
-  // 显示等待对方走棋
-  if (turn !== myColor) {
-    document.getElementById('waitingOverlay').style.display = 'block';
-  } else {
-    document.getElementById('waitingOverlay').style.display = 'none';
-  }
+    // 显示等待对方走棋
+    if (turn !== myColor) {
+      document.getElementById('waitingOverlay').style.display = 'block';
+    } else {
+      document.getElementById('waitingOverlay').style.display = 'none';
+    }
+  });
 }
 
 function undoMove() {
@@ -1542,68 +1580,24 @@ function renderBoard() {
       const piece = board[row][col];
       if (piece && getType(piece) === 'K' && isInCheck(board, getColor(piece)))
         sq.classList.add('in-check');
-      if (piece) {
-        const pieceEl = document.createElement('span');
-        pieceEl.textContent = PIECES[piece] || '';
-        const pc = getColor(piece);
-        const pt = getType(piece);
-        if (pc === 'w' && (pt === 'B' || pt === 'E')) {
-          pieceEl.className = 'piece-white-bishop';
-        } else if (pc === 'w') {
-          pieceEl.className = 'piece-white';
-        } else {
-          pieceEl.className = 'piece-black';
-        }
-        sq.appendChild(pieceEl);
-        if (getType(piece) === 'N') {
-          const posKey = row + ',' + col;
-          const checkCnt = knightCheckCounts[posKey] || 0;
-          if (checkCnt > 0 && checkCnt < 3) {
-            const badge = document.createElement('span');
-            badge.className = 'knight-check-badge';
-            badge.textContent = checkCnt;
-            sq.appendChild(badge);
-          }
-        }
-        if (getType(piece) === 'B') {
-          const posKey = row + ',' + col;
-          const checkCnt = bishopCheckCounts[posKey] || 0;
-          if (checkCnt > 0 && checkCnt < 3) {
-            const badge = document.createElement('span');
-            badge.className = 'knight-check-badge';
-            badge.style.background = '#2980b9';
-            badge.textContent = checkCnt;
-            sq.appendChild(badge);
-          }
-        }
-        if (getType(piece) === 'Q') {
-          const posKey = row + ',' + col;
-          const checkCnt = queenCheckCounts[posKey] || 0;
-          if (checkCnt > 0 && checkCnt < 3) {
-            const badge = document.createElement('span');
-            badge.className = 'knight-check-badge';
-            badge.style.background = '#8e44ad';
-            badge.textContent = checkCnt;
-            sq.appendChild(badge);
-          }
-        }
-        if (knightTransformPos && knightTransformPos.row === row && knightTransformPos.col === col) {
-          sq.classList.add('knight-transform');
-          setTimeout(() => { knightTransformPos = null; }, 1100);
-        }
-        if (bishopTransformPos && bishopTransformPos.row === row && bishopTransformPos.col === col) {
-          sq.classList.add('knight-transform');
-          setTimeout(() => { bishopTransformPos = null; }, 1100);
-        }
-        if (queenTransformPos && queenTransformPos.row === row && queenTransformPos.col === col) {
-          sq.classList.add('knight-transform');
-          setTimeout(() => { queenTransformPos = null; }, 1100);
-        }
+      if (knightTransformPos && knightTransformPos.row === row && knightTransformPos.col === col) {
+        sq.classList.add('knight-transform');
+        setTimeout(() => { knightTransformPos = null; }, 1100);
+      }
+      if (bishopTransformPos && bishopTransformPos.row === row && bishopTransformPos.col === col) {
+        sq.classList.add('knight-transform');
+        setTimeout(() => { bishopTransformPos = null; }, 1100);
+      }
+      if (queenTransformPos && queenTransformPos.row === row && queenTransformPos.col === col) {
+        sq.classList.add('knight-transform');
+        setTimeout(() => { queenTransformPos = null; }, 1100);
       }
       sq.addEventListener('click', () => squareClick(row, col));
       boardEl.appendChild(sq);
     }
   }
+  // 上层：渲染棋子到独立图层
+  renderPiecesLayer2P();
   // 坐标
   const flip2 = myColor === 'b';
   const rankEl = document.getElementById('rankCoords');
@@ -1630,6 +1624,128 @@ function renderBoard() {
   }
 }
 
+// ====== 棋子图层：DOM持久化 + 渐变徽章 + 滑行动画 (2P版) ======
+const PIECE_DISPLAY_2P = {
+  K:'王', Q:'后', R:'车', B:'象', N:'马', P:'兵', C:'炮', H:'马', E:'相', T:'車',
+};
+
+function getCheckBadgeColor(piece) {
+  const pt = getType(piece);
+  if (pt === 'N') return '#e74c3c';
+  if (pt === 'B') return '#2980b9';
+  if (pt === 'Q') return '#8e44ad';
+  return null;
+}
+function getCheckCount(piece, row, col) {
+  const pt = getType(piece);
+  const posKey = row + ',' + col;
+  if (pt === 'N') return knightCheckCounts[posKey] || 0;
+  if (pt === 'B') return bishopCheckCounts[posKey] || 0;
+  if (pt === 'Q') return queenCheckCounts[posKey] || 0;
+  return 0;
+}
+
+function createPieceElement2P(id, type, r, c) {
+  const container = document.getElementById('piecesLayer');
+  const el = document.createElement('div');
+  const isWhite = getColor(type) === 'w';
+  el.className = 'piece-badge ' + (isWhite ? 'white-piece' : 'black-piece');
+  el.id = 'piece-entity-' + id;
+  const sym = PIECES[type] || '';
+  const txt = PIECE_DISPLAY_2P[getType(type)] || '';
+  el.innerHTML = '<span class="piece-symbol">' + sym + '</span><span class="piece-text">' + txt + '</span>';
+  container.appendChild(el);
+  const pObj = { id, type, r, c, dom: el, active: true };
+  activePieceDOMs.push(pObj);
+  syncPiecePosition2P(pObj);
+  return pObj;
+}
+
+function syncPiecePosition2P(pObj) {
+  const flip = myColor === 'b';
+  const visualR = flip ? 7 - pObj.r : pObj.r;
+  const visualC = flip ? 7 - pObj.c : pObj.c;
+  pObj.dom.style.transform = 'translate(calc(' + visualC + ' * var(--sq)), calc(' + visualR + ' * var(--sq)))';
+}
+
+function renderPiecesLayer2P() {
+  const container = document.getElementById('piecesLayer');
+  container.innerHTML = '';
+  activePieceDOMs = [];
+  pieceIdCounter = 0;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const piece = board[r][c];
+      if (piece) {
+        const pObj = createPieceElement2P(pieceIdCounter++, piece, r, c);
+        const cnt = getCheckCount(piece, r, c);
+        if (cnt > 0 && cnt < 3) {
+          const badgeColor = getCheckBadgeColor(piece);
+          if (badgeColor) {
+            const badge = document.createElement('span');
+            badge.className = 'piece-check-badge';
+            badge.style.background = badgeColor;
+            badge.textContent = cnt;
+            pObj.dom.appendChild(badge);
+          }
+        }
+      }
+    }
+  }
+}
+
+function executeAnimatedMove2P(move, onComplete) {
+  isAnimating = true;
+  const { from, to } = move;
+  const movingPiece = activePieceDOMs.find(p => p.active && p.r === from.row && p.c === from.col);
+  // 被吃棋子：普通吃子在目标格，enPassant 在(from.row, to.col)
+  let victimPiece = activePieceDOMs.find(p => p.active && p.r === to.row && p.c === to.col);
+  if (move.enPassant) {
+    victimPiece = activePieceDOMs.find(p => p.active && p.r === from.row && p.c === to.col);
+  }
+  if (victimPiece) {
+    victimPiece.active = false;
+    victimPiece.dom.style.opacity = '0';
+    setTimeout(() => { if (victimPiece.dom.parentNode) victimPiece.dom.remove(); }, 600);
+  }
+  selected = null;
+  legalMovesCache = [];
+  renderGridOnly2P();
+  if (movingPiece) {
+    movingPiece.r = to.row;
+    movingPiece.c = to.col;
+    syncPiecePosition2P(movingPiece);
+  }
+  setTimeout(() => {
+    isAnimating = false;
+    if (onComplete) onComplete();
+  }, 2000);
+}
+
+function renderGridOnly2P() {
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+  const flip = myColor === 'b';
+  for (let visualRow = 0; visualRow < 8; visualRow++) {
+    for (let visualCol = 0; visualCol < 8; visualCol++) {
+      const row = flip ? 7 - visualRow : visualRow;
+      const col = flip ? 7 - visualCol : visualCol;
+      const sq = document.createElement('div');
+      const isLight = (row + col) % 2 === 0;
+      sq.className = 'square ' + (isLight ? 'light' : 'dark');
+      if (lastMove && (
+        (lastMove.from.row === row && lastMove.from.col === col) ||
+        (lastMove.to.row === row && lastMove.to.col === col)
+      )) sq.classList.add('last-move');
+      const piece = board[row][col];
+      if (piece && getType(piece) === 'K' && isInCheck(board, getColor(piece)))
+        sq.classList.add('in-check');
+      sq.addEventListener('click', () => squareClick(row, col));
+      boardEl.appendChild(sq);
+    }
+  }
+}
+
 function updateUI() {
   const inCheck = isInCheck(board, turn);
   const turnName = turn === 'w' ? '白方' : '黑方';
@@ -1644,6 +1760,11 @@ function updateUI() {
     ? (turn === 'w' ? '白方回合' : '黑方回合') : '--';
   document.getElementById('whiteDot').style.opacity = turn === 'w' ? '1' : '0.4';
   document.getElementById('blackDot').style.opacity = turn === 'b' ? '1' : '0.4';
+
+  // 同步等待提示状态
+  if (isConnected && myColor && !gameOver && !isAnimating) {
+    document.getElementById('waitingOverlay').style.display = (turn !== myColor) ? 'block' : 'none';
+  }
 
   document.getElementById('capturedWhite').textContent =
     capturedByWhite.map(p => PIECES[p] || '').join('');
