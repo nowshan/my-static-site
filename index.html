@@ -102,7 +102,7 @@
     .title p {
       margin: 6px 0 0;
       color: rgba(246, 234, 214, .78);
-      font-size: 14px;
+      font-size: clamp(13px, 2.2vw, 17px);
       letter-spacing: .08em;
     }
 
@@ -372,36 +372,41 @@
       font-family: "Microsoft YaHei", "Noto Serif SC", serif;
     }
 
-    /* 中国象棋棋子：中国红玉石质感 */
+    /* 中国象棋棋子：白底红字 */
     .piece.red {
-      color: #fff7e8;
+      color: var(--red);
       background:
-        radial-gradient(circle at 35% 25%, rgba(255,180,160,.8), transparent 28%),
-        linear-gradient(145deg, #e6453b, #a40000);
-      border-color: rgba(255,220,190,.75);
+        radial-gradient(circle at 35% 25%, rgba(255,255,255,.9), transparent 30%),
+        linear-gradient(145deg, #ffffff, #f2f2f2);
+      border-color: rgba(201,58,50,.55);
       box-shadow:
-        0 6px 14px rgba(120,0,0,.35),
-        inset 0 3px 8px rgba(255,255,255,.35);
+        0 6px 14px rgba(0,0,0,.24),
+        inset 0 3px 8px rgba(255,255,255,.95);
       font-size: .92em;
     }
 
-    /* 国际象棋棋子：象牙白风格 */
+    /* 国际象棋棋子：仿 lichess.org 黑方无底座风格 */
     .piece.black {
-      color: #222;
-      background:
-        radial-gradient(circle at 35% 20%, #ffffff, transparent 30%),
-        linear-gradient(145deg, #ffffff, #dddddd);
-      border-color: rgba(90,90,90,.35);
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 1em;
+      color: #1c1c1c;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      font-family: "Segoe UI Symbol", "Apple Color Emoji", Arial, sans-serif;
+      font-size: 1.8em;
+      text-shadow:
+        -1px -1px 0 #e6e6e6,
+         1px -1px 0 #e6e6e6,
+        -1px  1px 0 #e6e6e6,
+         1px  1px 0 #e6e6e6,
+         0    3px 4px rgba(0,0,0,0.45);
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.25));
     }
 
-    /* 国王皇冠增强 */
+    /* 国王额外调整 */
     .piece.black[title*="王"] {
-      font-size: 1.12em; transform: translateY(-1px);
-      background:
-        radial-gradient(circle at 50% 18%, #fff8cf 0 8%, transparent 18%),
-        linear-gradient(145deg, #ffffff, #d8d8d8);
+      font-size: 1.95em;
+      transform: translateY(0);
+      background: transparent;
     }
 
     .card {
@@ -474,7 +479,7 @@
       appearance: none;
       border-radius: 12px;
       padding: 9px 10px;
-      background: rgba(255,255,255,.08);
+      background: #343a45;
       color: var(--paper);
       border: 1px solid rgba(216,182,106,.35);
       font-family: inherit;
@@ -761,10 +766,12 @@
       .board-shell { padding: 8px; border-radius: 18px; }
       .coords { grid-template-columns: 16px repeat(8, 1fr); }
       .board-row-wrap { grid-template-columns: 16px 1fr; }
-      .piece { width: 84%; height: 84%; border-width: 1px; }
+      /* 取消移动端的覆盖，保证无底座比例正确 */
+      .piece { width: 100%; height: 100%; border-width: 0; } 
+      .piece.red { width: 84%; height: 84%; border-width: 1px; }
       .row { grid-template-columns: 1fr; }
       .captured { grid-template-columns: 1fr 1fr; }
-      .title p { font-size: 12px; }
+      .title p { font-size: clamp(13px, 2.2vw, 17px); }
     }
   </style>
 </head>
@@ -799,7 +806,6 @@
             <div>
               <span class="field-label">对战模式</span>
               <select id="modeSelect">
-                <option value="pvp">双人对战</option>
                 <option value="ai-black" selected>人机：我执红</option>
                 <option value="ai-red">人机：我执黑</option>
               </select>
@@ -850,13 +856,14 @@
         <summary class="rules-title">规则提示</summary>
         <div class="rule-list">
           <details><summary>胜负</summary><p>将死或困毙对方王/帅即获胜。所有棋子在 8×8 方格内移动与吃子，红方固定先手。</p></details>
+          <details><summary>和棋</summary><p>出现以下任一情况自动判为和棋：①双方仅剩王/帅，无子可将死；②同一方沿同一条路径连续 3 次将军，且对方王/帅也沿同一条路径重复走了 3 次（长将循环）。和棋双方各得完局分并额外 +2 分。</p></details>
           <details><summary>红方帅</summary><p>像国际象棋的王一样向八个方向走 1 格，但只能停留在己方半场前 4 排。</p></details>
           <details><summary>红方士</summary><p>只能斜向走 1 格，并且必须始终留在以帅为中心的 3×3 区域内。</p></details>
           <details><summary>红方相</summary><p>斜向跳 2 格，类似中国象棋“田”字；无塞相眼限制，可全盘移动。</p></details>
           <details><summary>红方马</summary><p>与国际象棋骑士相同，走 L 形，可跳跃，无别马腿限制。</p></details>
           <details><summary>红方车</summary><p>横向或纵向直线移动任意格，路径必须无阻挡。</p></details>
           <details><summary>红方炮</summary><p>不吃子时像车一样直线移动；吃子时必须直线隔且仅隔 1 个棋子，可隔着任何棋子作为炮架，包括王/帅。</p></details>
-          <details><summary>红方兵</summary><p>与国际象棋兵相同，向前直走、斜吃，第一步可走 2 格，可吃过路兵；到达黑方底线后可升变为已被吃掉的红方车、马、相、炮。</p></details>
+          <details><summary>红方兵</summary><p>直走、横走均可，也能直吃或横吃；只能向前或向横向移动与吃子，不能回撤、不能斜吃。第一步向前可走 2 格。冲入黑方底线（第 8 排）时，可升变为任意红方强力棋子：车、马、相、炮。</p></details>
           <details><summary>黑方棋子</summary><p>完全采用国际象棋规则：王、后、车、象、马、兵，以及王车易位、吃过路兵、兵到底线升变。</p></details>
         </div>
       </details>
@@ -915,6 +922,9 @@
     };
 
     let board, turn, selected, legalMoves, flipped, gameOver, enPassant, pendingPromotion;
+    let checkPathCount = { red: {}, black: {} };
+    let royalPathCount = { red: {}, black: {} };
+    let drawReason = null;
     let lastMove = null;
     let capturedBy = { red: [], black: [] };
     let moveLog = [];
@@ -959,6 +969,9 @@
       pendingPromotion = null;
       lastMove = null;
       capturedBy = { red: [], black: [] };
+      checkPathCount = { red: {}, black: {} };
+      royalPathCount = { red: {}, black: {} };
+      drawReason = null;
       moveLog = [];
       moveTrails = [];
       historyStack = [];
@@ -1066,7 +1079,9 @@
 
     function getBoardAlert() {
       if (gameOver) {
-        return { title: "Game Over / 游戏结束", subtitle: "The match has ended. / 本局棋结束。" };
+        return drawReason
+          ? { title: "Draw / 和棋", subtitle: drawReason }
+          : { title: "Game Over / 游戏结束", subtitle: "The match has ended. / 本局棋结束。" };
       }
       return boardNotice;
     }
@@ -1115,7 +1130,6 @@
       svg.setAttribute("preserveAspectRatio", "none");
       const rowIndex = new Map(rows.map((r, i) => [r, i]));
       const colIndex = new Map(cols.map((c, i) => [c, i]));
-      // 仅显示最近一步轨迹，避免重叠
       const t = moveTrails[moveTrails.length - 1];
       if (!rowIndex.has(t.fr) || !colIndex.has(t.fc)) return;
       const x1 = colIndex.get(t.fc) + .5;
@@ -1173,6 +1187,9 @@
           red: capturedBy.red.map(p => ({ ...p })),
           black: capturedBy.black.map(p => ({ ...p }))
         },
+        checkPathCount: { red: { ...checkPathCount.red }, black: { ...checkPathCount.black } },
+        royalPathCount: { red: { ...royalPathCount.red }, black: { ...royalPathCount.black } },
+        drawReason,
         moveLog: [...moveLog],
         moveTrails: moveTrails.map(t => ({ ...t })),
         scoreAwarded,
@@ -1194,6 +1211,13 @@
         red: s.capturedBy.red.map(p => ({ ...p })),
         black: s.capturedBy.black.map(p => ({ ...p }))
       };
+      checkPathCount = s.checkPathCount
+        ? { red: { ...s.checkPathCount.red }, black: { ...s.checkPathCount.black } }
+        : { red: {}, black: {} };
+      royalPathCount = s.royalPathCount
+        ? { red: { ...s.royalPathCount.red }, black: { ...s.royalPathCount.black } }
+        : { red: {}, black: {} };
+      drawReason = s.drawReason ?? null;
       moveLog = [...s.moveLog];
       moveTrails = s.moveTrails.map(t => ({ ...t }));
       scoreAwarded = s.scoreAwarded;
@@ -1279,6 +1303,7 @@
 
     function finishTurn() {
       turn = turn === "red" ? "black" : "red";
+      trackRepetition(turn === "red" ? "black" : "red");
       updateGameState();
       render();
       maybeAIMove();
@@ -1314,7 +1339,7 @@
       promotionTitle.textContent = `${color === "red" ? "红兵" : "黑兵"}升变`;
       const options = color === "red" ? redPromotionOptions() : STRONG_BLACK;
       promotionHint.textContent = color === "red"
-        ? "红方只能升变为已被吃掉的车、马、相、炮；若暂无对应被吃子，本版本允许保留为兵。"
+        ? "红方可升变为任意强力棋子：车、马、相、炮。"
         : "黑方可升变为后、车、象、马。";
       const finalOptions = options.length ? options : ["pawn"];
       for (const type of finalOptions) {
@@ -1329,8 +1354,7 @@
     }
 
     function redPromotionOptions() {
-      const lostTypes = capturedBy.black.filter(p => p.color === "red" && STRONG_RED.includes(p.type)).map(p => p.type);
-      return [...new Set(lostTypes)];
+      return [...STRONG_RED];
     }
 
     function choosePromotion(type) {
@@ -1341,6 +1365,53 @@
       promotionModal.classList.remove("open");
       moveLog.push(`${pp.logPrefix} 升变为${pieceLabel(piece)}`);
       finishTurn();
+    }
+
+    function trackRepetition(mover) {
+      if (!lastMove) return;
+      const key = `${lastMove.fr}${lastMove.fc}-${lastMove.tr}${lastMove.tc}`;
+      const movedPiece = board[lastMove.tr][lastMove.tc];
+
+      if (isInCheck(turn, board)) {
+        checkPathCount[mover][key] = (checkPathCount[mover][key] || 0) + 1;
+      } else {
+        checkPathCount[mover] = {};
+      }
+
+      if (movedPiece && movedPiece.type === "king") {
+        royalPathCount[mover][key] = (royalPathCount[mover][key] || 0) + 1;
+      } else {
+        royalPathCount[mover] = {};
+      }
+    }
+
+    function perpetualDraw() {
+      for (const attacker of ["red", "black"]) {
+        const defender = attacker === "red" ? "black" : "red";
+        const atkPath = Object.keys(checkPathCount[attacker]).find(k => checkPathCount[attacker][k] >= 3);
+        const defPath = Object.keys(royalPathCount[defender]).find(k => royalPathCount[defender][k] >= 3);
+        if (atkPath && defPath) return { attacker, defender, atkPath, defPath };
+      }
+      return null;
+    }
+
+    function isBareKings() {
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = board[r][c];
+          if (p && p.type !== "king") return false;
+        }
+      }
+      return true;
+    }
+
+    function declareDraw(badge, message) {
+      gameOver = true;
+      drawReason = message;
+      clearBoardNotice();
+      stateBadge.textContent = badge;
+      messageEl.textContent = message;
+      awardScore(null, true);
     }
 
     function updateGameState(customMessage = "") {
@@ -1364,6 +1435,13 @@
           messageEl.textContent = `${turn === "red" ? "红方" : "黑方"}无合法步，${winner}获胜。Game Over。`;
         }
         awardScore(winnerColor);
+      } else if (isBareKings()) {
+        declareDraw("光王和棋", "双方仅剩王/帅，任何一方都无法将死对手，判为和棋。");
+      } else if (perpetualDraw()) {
+        const rep = perpetualDraw();
+        const atkName = rep.attacker === "red" ? "红方" : "黑方";
+        const defName = rep.defender === "red" ? "红方帅" : "黑方王";
+        declareDraw("长将和棋", `${atkName}沿同一路径连续 3 次将军，${defName}也重复走了 3 次同一步，判为和棋。`);
       } else if (inCheck) {
         stateBadge.textContent = "将军";
         messageEl.textContent = `将军！${turn === "red" ? "红方帅" : "黑方王"}正在被攻击，下一步有被吃风险。`;
@@ -1396,7 +1474,6 @@
         b[fr][rookToC] = b[fr][rookFromC];
         b[fr][rookFromC] = null;
       }
-      // simple auto-promote in simulation
       if (piece && piece.type === "pawn") {
         if (piece.color === "red" && move.r === 0) piece.type = "rook";
         else if (piece.color === "black" && move.r === 7) piece.type = "queen";
@@ -1516,18 +1593,28 @@
       if (piece.type === "rook") moves.push(...slideMoves(r, c, b, color, [[1,0],[-1,0],[0,1],[0,-1]]));
       if (piece.type === "cannon") moves.push(...cannonMoves(r, c, b, color, opts));
       if (piece.type === "pawn") {
-        const nr = r - 1;
-        if (!opts.attacksOnly && inBounds(nr, c) && !b[nr][c]) {
-          moves.push({ r: nr, c });
-          if (r === 6 && !b[r - 2][c]) moves.push({ r: r - 2, c });
+        const nr = r - 1; 
+        if (inBounds(nr, c)) {
+          if (opts.attacksOnly) {
+            moves.push({ r: nr, c });
+          } else if (!b[nr][c]) {
+            moves.push({ r: nr, c });
+            if (r === 6 && !b[r - 2][c]) moves.push({ r: r - 2, c }); 
+          } else if (b[nr][c].color !== color) {
+            moves.push({ r: nr, c }); 
+          }
         }
         for (const dc of [-1, 1]) {
           const cc = c + dc;
-          if (!inBounds(nr, cc)) continue;
-          if (opts.attacksOnly) moves.push({ r: nr, c: cc });
-          else if (b[nr][cc] && b[nr][cc].color !== color) moves.push({ r: nr, c: cc });
+          if (!inBounds(r, cc)) continue;
+          if (opts.attacksOnly) {
+            moves.push({ r, c: cc });
+          } else if (!b[r][cc]) {
+            moves.push({ r, c: cc }); 
+          } else if (b[r][cc].color !== color) {
+            moves.push({ r, c: cc }); 
+          }
         }
-        addEnPassant(moves, r, c, piece);
       }
       return moves;
     }
@@ -1599,8 +1686,6 @@
         if (!isSquareAttacked(0, 3, enemy, b) && !isSquareAttacked(0, 2, enemy, b)) moves.push({ r: 0, c: 2, castle: "queen" });
       }
     }
-
-    /* ---------- 游客与积分 ---------- */
 
     function saveProfile() {
       localStorage.setItem("eastWestChessProfile", JSON.stringify(visitorProfile));
@@ -1744,8 +1829,6 @@
       return map[name] || String(name).replace(/\s+/g, "");
     }
 
-    /* ---------- AI ---------- */
-
     function getAllLegalMovesOnBoard(color, b) {
       const moves = [];
       for (let r = 0; r < 8; r++) {
@@ -1770,9 +1853,7 @@
           const p = b[r][c];
           if (!p) continue;
           let v = PIECE_VALUE[p.type] || 0;
-          // 中心控制：中央 4 格小幅加成
           if (r >= 3 && r <= 4 && c >= 3 && c <= 4) v += 10;
-          // 红兵越靠近黑底，价值越高
           if (p.type === "pawn") {
             if (p.color === "red") v += (6 - r) * 6;
             else v += (r - 1) * 6;
@@ -1784,7 +1865,6 @@
     }
 
     function orderMoves(moves, b) {
-      // 优先吃子，提高 alpha-beta 剪枝效率
       return moves.map(m => {
         const tgt = b[m.r][m.c];
         const attacker = b[m.fr][m.fc];
@@ -1877,7 +1957,6 @@
     });
     modeSelect.addEventListener("change", setupGame);
     aiLevelSelect.addEventListener("change", () => {
-      // 仅切换难度，不重开
     });
 
     loadVisitorProfile();
